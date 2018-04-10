@@ -10,6 +10,10 @@ import (
 )
 
 func main() {
+	start := hrtime.Now()
+	time.Sleep(1000 * time.Nanosecond)
+	fmt.Println(hrtime.Since(start))
+
 	bench := hrtime.NewBenchmark(4 << 10)
 	for bench.Next() {
 		time.Sleep(1000 * time.Nanosecond)
@@ -18,7 +22,7 @@ func main() {
 }
 
 // Example output:
-//
+// 836.599µs
 //    710.64µs [    5]
 //   854.331µs [  469] ██████████████▌
 //   998.022µs [ 1125] ██████████████████████████████████▌
