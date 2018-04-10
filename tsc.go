@@ -8,6 +8,8 @@ package hrtime
 type Count int64
 
 // ApproxNanos returns approximate conversion into Nano-s
+//
+// First call to this function will do calibration and can take several ms
 func (count Count) ApproxNanos() Nano {
 	if ratioCount == 0 {
 		calculateTSCConversion()
@@ -53,14 +55,20 @@ func calculateTSCOverhead() {
 }
 
 func calculateTSCConversion() {
+	// warmup
+	for i := 0; i < 64*calibrationCalls; i++ {
+		empty()
+	}
+
 	nanostart := Now()
 	countstart := TSC()
-	for i := 0; i < calibrationCalls; i++ {
+	for i := 0; i < 64*calibrationCalls; i++ {
 		empty()
 	}
 	nanoend := Now()
 	countstop := TSC()
 
+	// TODO: figure out a better way to calculate this
 	ratioNano = nanoend - nanostart - Overhead()
 	ratioCount = countstop - countstart - TSCOverhead()
 }

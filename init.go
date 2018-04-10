@@ -11,5 +11,4 @@ func init() {
 		rdtscpInvariant = edx&(1<<8) != 0
 	}
 	calculateTSCOverhead()
-	calculateTSCConversion()
 }
