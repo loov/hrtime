@@ -32,7 +32,7 @@ func Now() time.Duration {
 	return time.Duration(now) * time.Second / (time.Duration(qpcFrequency) * time.Nanosecond)
 }
 
-// NanosPrecision returns maximum possible precision for Now in nanoseconds
-func NanosPrecision() float64 {
+// NowPrecision returns maximum possible precision for Now in nanoseconds
+func NowPrecision() float64 {
 	return float64(time.Second) / (float64(qpcFrequency) * float64(time.Nanosecond))
 }
