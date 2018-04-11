@@ -1,5 +1,7 @@
 package hrtime
 
+import "time"
+
 // Count represents represents Time Stamp Counter value, when available
 //
 // Count doesn't depend on power throttling, sleeping and similar effects
@@ -10,11 +12,11 @@ type Count int64
 // ApproxNanos returns approximate conversion into Nano-s
 //
 // First call to this function will do calibration and can take several ms
-func (count Count) ApproxNanos() Nano {
+func (count Count) ApproxNanos() time.Duration {
 	if ratioCount == 0 {
 		calculateTSCConversion()
 	}
-	return Nano(count) * ratioNano / Nano(ratioCount)
+	return time.Duration(count) * ratioNano / time.Duration(ratioCount)
 }
 
 // TSC reads the current Time Stamp Counter value
@@ -36,7 +38,7 @@ var (
 	rdtscp func() uint64
 	cpuid  func(op1, op2 uint32) (eax, ebx, ecx, edx uint32)
 
-	ratioNano  Nano
+	ratioNano  time.Duration
 	ratioCount Count
 )
 

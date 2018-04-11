@@ -4,6 +4,7 @@ package hrtime_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/loov/hrtime"
 )
@@ -48,8 +49,8 @@ func TestCountPrecision(t *testing.T) {
 	if approxConversionDrift < 0 {
 		approxConversionDrift *= -1
 	}
-	if approxConversionDrift > 2*hrtime.Overhead()+hrtime.Nano(500) {
-		t.Logf("drift: too large %v (loopTime:%v, wallTime:%v)", approxConversionDrift.Duration(), loopTime.ApproxNanos(), wallTime)
+	if approxConversionDrift > 2*hrtime.Overhead()+500*time.Nanosecond {
+		t.Logf("drift: too large %v (loopTime:%v, wallTime:%v)", approxConversionDrift, loopTime.ApproxNanos(), wallTime)
 	}
 
 	// we expect each call to take at least 2 nanos

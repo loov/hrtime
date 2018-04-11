@@ -2,6 +2,7 @@ package hrtime
 
 import (
 	"syscall"
+	"time"
 	"unsafe"
 )
 
@@ -24,15 +25,14 @@ func getFrequency() int64 {
 	return freq
 }
 
-// Now returns current nanoseconds with best possible precision
-func Now() Nano {
+// Now returns current time.Duration with best possible precision
+func Now() time.Duration {
 	var now int64
 	syscall.Syscall(procCounter.Addr(), 1, uintptr(unsafe.Pointer(&now)), 0, 0)
-	return Nano(now * 1e9 / qpcFrequency)
+	return time.Duration(now) * time.Second / (time.Duration(qpcFrequency) * time.Nanosecond)
 }
 
 // NanosPrecision returns maximum possible precision for Now in nanoseconds
-func NanosPrecision() float64 { return float64(1e9) / float64(qpcFrequency) }
-
-// NanosFrequency returns counts per second
-func NanosFrequency() Nano { return Nano(qpcFrequency) }
+func NanosPrecision() float64 {
+	return float64(time.Second) / (float64(qpcFrequency) * float64(time.Nanosecond))
+}

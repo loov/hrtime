@@ -5,63 +5,13 @@ import (
 	"io"
 	"math"
 	"strings"
+	"time"
 )
 
-type Benchmark struct {
-	Step  int
-	Laps  []Nano
-	Start Nano
-	Stop  Nano
-}
-
-func NewBenchmark(count int) *Benchmark {
-	if count <= 0 {
-		panic("must have count at least 0")
-	}
-
-	return &Benchmark{
-		Step:  0,
-		Laps:  make([]Nano, count),
-		Start: 0,
-		Stop:  0,
-	}
-}
-
-func (bench *Benchmark) finalize(last Nano) {
-	if bench.Stop != 0 {
-		return
-	}
-
-	bench.Start = bench.Laps[0]
-	bench.Stop = last
-	for i := range bench.Laps[:len(bench.Laps)-1] {
-		bench.Laps[i] = bench.Laps[i+1] - bench.Laps[i]
-	}
-	bench.Laps[len(bench.Laps)-1] = bench.Stop - bench.Laps[len(bench.Laps)-1]
-}
-
-func (bench *Benchmark) Next() bool {
-	now := Now()
-	if bench.Step >= len(bench.Laps) {
-		bench.finalize(now)
-		return false
-	}
-	bench.Laps[bench.Step] = Now()
-	bench.Step++
-	return true
-}
-
-func (bench *Benchmark) Histogram(binCount int) *Histogram {
-	if bench.Stop == 0 {
-		panic("benchmarking incomplete")
-	}
-	return NewHistogram(bench.Laps, binCount)
-}
-
 type Histogram struct {
-	Minimum Nano
-	Average Nano
-	Maximum Nano
+	Minimum time.Duration
+	Average time.Duration
+	Maximum time.Duration
 
 	Bins []HistogramBin
 
@@ -70,12 +20,12 @@ type Histogram struct {
 }
 
 type HistogramBin struct {
-	Start Nano
+	Start time.Duration
 	Count int
 	Width float64
 }
 
-func NewHistogram(timing []Nano, binCount int) *Histogram {
+func NewHistogram(timing []time.Duration, binCount int) *Histogram {
 	if binCount < 0 {
 		panic("binCount must be larger than 0")
 	}
@@ -104,11 +54,11 @@ func NewHistogram(timing []Nano, binCount int) *Histogram {
 		}
 	}
 
-	hist.Average /= Nano(len(timing))
+	hist.Average /= time.Duration(len(timing))
 
 	stepSize := float64(hist.Maximum-hist.Minimum) / float64(binCount)
 	for i := range hist.Bins {
-		hist.Bins[i].Start = Nano(stepSize*float64(i)) + hist.Minimum
+		hist.Bins[i].Start = time.Duration(stepSize*float64(i)) + hist.Minimum
 	}
 	for _, x := range timing {
 		k := int(float64(x-hist.Minimum) / stepSize)

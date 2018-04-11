@@ -8,7 +8,7 @@ import (
 	"github.com/loov/hrtime"
 )
 
-func TestNanosCalibration(t *testing.T) {
+func TestNowCalibration(t *testing.T) {
 	start := hrtime.Now()
 	empty()
 	stop := hrtime.Now()
@@ -17,7 +17,7 @@ func TestNanosCalibration(t *testing.T) {
 	}
 }
 
-func TestNanosPrecision(t *testing.T) {
+func TestNowPrecision(t *testing.T) {
 	const N = 8 << 10
 
 	start := hrtime.Now()
