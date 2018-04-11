@@ -1,3 +1,4 @@
+// Package hrtime implements High-Resolution Timing functions for benchmarking.
 package hrtime
 
 const calibrationCalls = 1 << 10

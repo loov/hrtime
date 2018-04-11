@@ -1,6 +1,5 @@
 // +build !windows
 
-// Fallback to using time.Now
 package hrtime
 
 import "time"
