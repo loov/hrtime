@@ -30,7 +30,7 @@ func TestCountPrecision(t *testing.T) {
 		t.Skip("Cycle counting not supported")
 	}
 
-	t.Logf("Conversion 1000000 count = %v", hrtime.Count(1000000).ApproxNanos())
+	t.Logf("Conversion 1000000 count = %v", hrtime.Count(1000000).ApproxDuration())
 
 	const N = 8 << 10
 
@@ -43,22 +43,22 @@ func TestCountPrecision(t *testing.T) {
 	stopnano := hrtime.Now()
 
 	loopTime := stop - start - 2*hrtime.TSCOverhead()
-	wallTime := stopnano - startnano - 2*hrtime.Overhead() - 2*hrtime.TSCOverhead().ApproxNanos()
+	wallTime := stopnano - startnano - 2*hrtime.Overhead() - 2*hrtime.TSCOverhead().ApproxDuration()
 
-	approxConversionDrift := wallTime - loopTime.ApproxNanos()
+	approxConversionDrift := wallTime - loopTime.ApproxDuration()
 	if approxConversionDrift < 0 {
 		approxConversionDrift *= -1
 	}
 	if approxConversionDrift > 2*hrtime.Overhead()+500*time.Nanosecond {
-		t.Logf("drift: too large %v (loopTime:%v, wallTime:%v)", approxConversionDrift, loopTime.ApproxNanos(), wallTime)
+		t.Logf("drift: too large %v (loopTime:%v, wallTime:%v)", approxConversionDrift, loopTime.ApproxDuration(), wallTime)
 	}
 
 	// we expect each call to take at least 2 nanos
-	if loopTime.ApproxNanos() < 2*N {
+	if loopTime.ApproxDuration() < 2*N {
 		t.Errorf("slow: loop time took %v", loopTime)
 	}
 	// we expect no call to take more than 20 nanos
-	if loopTime.ApproxNanos() > 20*N {
+	if loopTime.ApproxDuration() > 20*N {
 		t.Errorf("fast: loop time took %v", loopTime)
 	}
 }

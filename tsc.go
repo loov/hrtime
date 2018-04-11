@@ -9,10 +9,10 @@ import "time"
 // reasonable time-value.
 type Count int64
 
-// ApproxNanos returns approximate conversion into Nano-s
+// ApproxDuration returns approximate conversion into a Duration
 //
 // First call to this function will do calibration and can take several ms
-func (count Count) ApproxNanos() time.Duration {
+func (count Count) ApproxDuration() time.Duration {
 	if ratioCount == 0 {
 		calculateTSCConversion()
 	}
