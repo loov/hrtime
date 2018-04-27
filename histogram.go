@@ -86,6 +86,16 @@ func NewHistogram(timing []time.Duration, binCount int) *Histogram {
 	return hist
 }
 
+func (hist *Histogram) Divide(n int) {
+	hist.Minimum /= time.Duration(n)
+	hist.Average /= time.Duration(n)
+	hist.Maximum /= time.Duration(n)
+
+	for i := range hist.Bins {
+		hist.Bins[i].Start /= time.Duration(n)
+	}
+}
+
 func (hist *Histogram) WriteTo(w io.Writer) error {
 	// TODO: use consistently single unit instead of multiple
 	for _, bin := range hist.Bins {
