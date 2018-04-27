@@ -98,8 +98,18 @@ func (hist *Histogram) Divide(n int) {
 
 func (hist *Histogram) WriteTo(w io.Writer) error {
 	// TODO: use consistently single unit instead of multiple
+	maxCountLength := 3
+	for i := range hist.Bins {
+		x := (int)(math.Ceil(math.Log10(float64(hist.Bins[i].Count + 1))))
+		if x > maxCountLength {
+			maxCountLength = x
+		}
+	}
+
 	for _, bin := range hist.Bins {
-		_, err := fmt.Fprintf(w, " %10v [%6v] ", bin.Start, bin.Count)
+		fmt.Sprintf("%[3]*.[2]*[1]f", 12.0, 2, 6)
+
+		_, err := fmt.Fprintf(w, " %10v [%[2]*[3]v] ", bin.Start, maxCountLength, bin.Count)
 		if err != nil {
 			return err
 		}
