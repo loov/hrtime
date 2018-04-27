@@ -52,3 +52,11 @@ func (bench *Benchmark) Histogram(binCount int) *Histogram {
 	}
 	return NewHistogram(bench.Laps, binCount)
 }
+
+func CombinedHistogram(binCount int, benches ...*Benchmark) *Histogram {
+	laps := []time.Duration{}
+	for _, b := range benches {
+		laps = append(laps, b.Laps...)
+	}
+	return NewHistogram(laps, binCount)
+}

@@ -89,7 +89,7 @@ func NewHistogram(timing []time.Duration, binCount int) *Histogram {
 func (hist *Histogram) WriteTo(w io.Writer) error {
 	// TODO: use consistently single unit instead of multiple
 	for _, bin := range hist.Bins {
-		_, err := fmt.Fprintf(w, " %10v [%5v] ", bin.Start, bin.Count)
+		_, err := fmt.Fprintf(w, " %10v [%6v] ", bin.Start, bin.Count)
 		if err != nil {
 			return err
 		}
