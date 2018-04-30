@@ -10,6 +10,14 @@ TEXT ·rdtscpAsm(SB),NOSPLIT,$0-8
 	MOVQ AX, ret+0(FP)
 	RET
 
+// func rdtscAsm() uint64
+TEXT ·rdtscAsm(SB),NOSPLIT,$0-8
+	RDTSC
+	SHLQ $32, DX
+	ADDQ DX, AX
+	MOVQ AX, ret+0(FP)
+	RET
+
 // func ·cpuidAsm(op, op2 uint32) (eax, ebx, ecx, edx uint32)
 TEXT ·cpuidAsm(SB),NOSPLIT,$8-16
 	MOVL  op1+0(FP), AX
