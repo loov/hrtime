@@ -4,6 +4,7 @@ package hrtime_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/loov/hrtime"
 )
@@ -39,3 +40,15 @@ func TestNowPrecision(t *testing.T) {
 
 //go:noinline
 func empty() {}
+
+func BenchmarkTimeNow(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		time.Now()
+	}
+}
+
+func BenchmarkNow(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		hrtime.Now()
+	}
+}

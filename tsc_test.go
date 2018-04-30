@@ -62,3 +62,13 @@ func TestCountPrecision(t *testing.T) {
 		t.Errorf("fast: loop time took %v", loopTime)
 	}
 }
+
+func BenchmarkTSC(b *testing.B) {
+	if !hrtime.TSCSupported() {
+		b.Skip("Cycle counting not supported")
+	}
+
+	for i := 0; i < b.N; i++ {
+		hrtime.TSC()
+	}
+}
