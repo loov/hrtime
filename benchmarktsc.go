@@ -3,10 +3,10 @@ package hrtime
 import "time"
 
 type BenchmarkTSC struct {
-	Step  int
-	Laps  []Count
-	Start Count
-	Stop  Count
+	Step   int
+	Counts []Count
+	Start  Count
+	Stop   Count
 }
 
 func NewBenchmarkTSC(count int) *BenchmarkTSC {
@@ -15,10 +15,10 @@ func NewBenchmarkTSC(count int) *BenchmarkTSC {
 	}
 
 	return &BenchmarkTSC{
-		Step:  0,
-		Laps:  make([]Count, count),
-		Start: 0,
-		Stop:  0,
+		Step:   0,
+		Counts: make([]Count, count),
+		Start:  0,
+		Stop:   0,
 	}
 }
 
@@ -27,23 +27,31 @@ func (bench *BenchmarkTSC) finalize(last Count) {
 		return
 	}
 
-	bench.Start = bench.Laps[0]
+	bench.Start = bench.Counts[0]
 	bench.Stop = last
-	for i := range bench.Laps[:len(bench.Laps)-1] {
-		bench.Laps[i] = bench.Laps[i+1] - bench.Laps[i]
+	for i := range bench.Counts[:len(bench.Counts)-1] {
+		bench.Counts[i] = bench.Counts[i+1] - bench.Counts[i]
 	}
-	bench.Laps[len(bench.Laps)-1] = bench.Stop - bench.Laps[len(bench.Laps)-1]
+	bench.Counts[len(bench.Counts)-1] = bench.Stop - bench.Counts[len(bench.Counts)-1]
 }
 
 func (bench *BenchmarkTSC) Next() bool {
 	now := TSC()
-	if bench.Step >= len(bench.Laps) {
+	if bench.Step >= len(bench.Counts) {
 		bench.finalize(now)
 		return false
 	}
-	bench.Laps[bench.Step] = TSC()
+	bench.Counts[bench.Step] = TSC()
 	bench.Step++
 	return true
+}
+
+func (bench *BenchmarkTSC) Laps() []time.Duration {
+	laps := make([]time.Duration, len(bench.Counts))
+	for i, v := range bench.Counts {
+		laps[i] = v.ApproxDuration()
+	}
+	return laps
 }
 
 func (bench *BenchmarkTSC) Histogram(binCount int) *Histogram {
@@ -51,20 +59,16 @@ func (bench *BenchmarkTSC) Histogram(binCount int) *Histogram {
 		panic("benchmarking incomplete")
 	}
 
-	laps := make([]time.Duration, len(bench.Laps))
-	for i, v := range bench.Laps {
-		laps[i] = v.ApproxDuration()
-	}
-
-	return NewHistogram(laps, binCount)
+	return NewHistogram(bench.Laps(), binCount)
 }
 
 func (bench *BenchmarkTSC) HistogramClamp(binCount int, min, max time.Duration) *Histogram {
 	if bench.Stop == 0 {
 		panic("benchmarking incomplete")
 	}
-	laps := make([]time.Duration, 0, len(bench.Laps))
-	for _, count := range bench.Laps {
+
+	laps := make([]time.Duration, 0, len(bench.Counts))
+	for _, count := range bench.Counts {
 		lap := count.ApproxDuration()
 		if lap < min {
 			laps = append(laps, min)
