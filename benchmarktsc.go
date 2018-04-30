@@ -2,27 +2,27 @@ package hrtime
 
 import "time"
 
-type Benchmark struct {
+type BenchmarkTSC struct {
 	Step  int
-	Laps  []time.Duration
-	Start time.Duration
-	Stop  time.Duration
+	Laps  []Count
+	Start Count
+	Stop  Count
 }
 
-func NewBenchmark(count int) *Benchmark {
+func NewBenchmarkTSC(count int) *BenchmarkTSC {
 	if count <= 0 {
 		panic("must have count at least 0")
 	}
 
-	return &Benchmark{
+	return &BenchmarkTSC{
 		Step:  0,
-		Laps:  make([]time.Duration, count),
+		Laps:  make([]Count, count),
 		Start: 0,
 		Stop:  0,
 	}
 }
 
-func (bench *Benchmark) finalize(last time.Duration) {
+func (bench *BenchmarkTSC) finalize(last Count) {
 	if bench.Stop != 0 {
 		return
 	}
@@ -35,30 +35,37 @@ func (bench *Benchmark) finalize(last time.Duration) {
 	bench.Laps[len(bench.Laps)-1] = bench.Stop - bench.Laps[len(bench.Laps)-1]
 }
 
-func (bench *Benchmark) Next() bool {
-	now := Now()
+func (bench *BenchmarkTSC) Next() bool {
+	now := TSC()
 	if bench.Step >= len(bench.Laps) {
 		bench.finalize(now)
 		return false
 	}
-	bench.Laps[bench.Step] = Now()
+	bench.Laps[bench.Step] = TSC()
 	bench.Step++
 	return true
 }
 
-func (bench *Benchmark) Histogram(binCount int) *Histogram {
+func (bench *BenchmarkTSC) Histogram(binCount int) *Histogram {
 	if bench.Stop == 0 {
 		panic("benchmarking incomplete")
 	}
-	return NewHistogram(bench.Laps, binCount)
+
+	laps := make([]time.Duration, len(bench.Laps))
+	for i, v := range bench.Laps {
+		laps[i] = v.ApproxDuration()
+	}
+
+	return NewHistogram(laps, binCount)
 }
 
-func (bench *Benchmark) HistogramClamp(binCount int, min, max time.Duration) *Histogram {
+func (bench *BenchmarkTSC) HistogramClamp(binCount int, min, max time.Duration) *Histogram {
 	if bench.Stop == 0 {
 		panic("benchmarking incomplete")
 	}
 	laps := make([]time.Duration, 0, len(bench.Laps))
-	for _, lap := range bench.Laps {
+	for _, count := range bench.Laps {
+		lap := count.ApproxDuration()
 		if lap < min {
 			laps = append(laps, min)
 		} else if lap > max {

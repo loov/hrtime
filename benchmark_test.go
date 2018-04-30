@@ -14,3 +14,11 @@ func ExampleBenchmark() {
 	}
 	fmt.Println(bench.Histogram(10))
 }
+
+func ExampleBenchmarkTSC() {
+	bench := hrtime.NewBenchmarkTSC(4 << 10)
+	for bench.Next() {
+		time.Sleep(1000 * time.Nanosecond)
+	}
+	fmt.Println(bench.Histogram(10))
+}
