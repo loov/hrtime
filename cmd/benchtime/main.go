@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	samples = flag.Int("samples", 1e6, "measurements per line")
+	samples = flag.Int("samples", 100e6, "measurements per line")
 	warmup  = flag.Int("warmup", 256, "warmup count")
 	maxtime = flag.Float64("max", 100, "maximum ns time to consider")
 
