@@ -8,5 +8,5 @@ func initCPU() {
 	cpuid = cpuidAsm
 }
 
-func rdtscp() uint64 { return rdtscpAsm() }
-func rdtsc() uint64  { return rdtscAsm() }
+func RDTSCP() uint64 { return rdtscpAsm() }
+func RDTSC() uint64  { return rdtscAsm() }

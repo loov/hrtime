@@ -10,7 +10,7 @@ func BenchmarkRDTSCP(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		rdtscp()
+		RDTSCP()
 	}
 }
 
@@ -19,6 +19,6 @@ func BenchmarkRDTSC(b *testing.B) {
 		b.Skip("Cycle counting not supported")
 	}
 	for i := 0; i < b.N; i++ {
-		rdtsc()
+		RDTSC()
 	}
 }

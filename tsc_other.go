@@ -8,5 +8,5 @@ func initCPU() {
 	}
 }
 
-func rdtscp() uint64 { return 0 }
-func rdtsc() uint64  { return 0 }
+func RDTSCP() uint64 { return 0 }
+func RDTSC() uint64  { return 0 }

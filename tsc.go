@@ -20,7 +20,7 @@ func (count Count) ApproxDuration() time.Duration {
 }
 
 // TSC reads the current Time Stamp Counter value
-func TSC() Count { return Count(rdtsc()) }
+func TSC() Count { return Count(RDTSC()) }
 
 // TSCSince returns count since start
 func TSCSince(start Count) Count { return TSC() - start }
