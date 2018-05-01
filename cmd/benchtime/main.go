@@ -349,7 +349,7 @@ func (t *Timing) Prepare(max float64) {
 		avg += v * frac
 	}
 	t.Average = avg
-	t.Ps = quant(t.Sanitized, 0.5, 0.9, 0.99, 0.999)
+	t.Ps = quant(t.Sanitized[t.Zero:], 0.5, 0.9, 0.99, 0.999)
 
 	tail := len(t.Sanitized) - 1
 	for ; tail >= 0; tail-- {
