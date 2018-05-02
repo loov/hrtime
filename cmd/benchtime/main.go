@@ -19,6 +19,7 @@ import (
 var (
 	samples = flag.Int("samples", 100e6, "measurements per line")
 	warmup  = flag.Int("warmup", 256, "warmup count")
+	mintime = flag.Float64("min", 0, "minimum ns time to consider")
 	maxtime = flag.Float64("max", 100, "maximum ns time to consider")
 
 	svg     = flag.String("svg", "results.svg", "")
@@ -170,7 +171,7 @@ func plot(w io.Writer, timings []*Timing) {
 	density := *density
 	kernel := *kernel
 
-	min := 0.0
+	min := *mintime
 	max := *maxtime
 	pointstep := (max - min) / float64(density)
 	tickstepx := *maxtime / 50
@@ -336,7 +337,7 @@ func (t *Timing) Prepare(max float64) {
 	sort.Float64s(t.Sanitized)
 
 	for _, v := range t.Sanitized {
-		if v <= 0 {
+		if v <= *mintime {
 			t.Zero++
 		} else {
 			break
