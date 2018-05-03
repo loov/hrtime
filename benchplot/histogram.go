@@ -1,4 +1,4 @@
-package hrtime
+package benchplot
 
 import (
 	"fmt"

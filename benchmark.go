@@ -1,6 +1,10 @@
 package hrtime
 
-import "time"
+import (
+	"time"
+
+	"github.com/loov/hrtime/benchplot"
+)
 
 type Benchmark struct {
 	Step  int
@@ -46,14 +50,14 @@ func (bench *Benchmark) Next() bool {
 	return true
 }
 
-func (bench *Benchmark) Histogram(binCount int) *Histogram {
+func (bench *Benchmark) Histogram(binCount int) *benchplot.Histogram {
 	if bench.Stop == 0 {
 		panic("benchmarking incomplete")
 	}
-	return NewHistogram(bench.Laps, binCount)
+	return benchplot.NewHistogram(bench.Laps, binCount)
 }
 
-func (bench *Benchmark) HistogramClamp(binCount int, min, max time.Duration) *Histogram {
+func (bench *Benchmark) HistogramClamp(binCount int, min, max time.Duration) *benchplot.Histogram {
 	if bench.Stop == 0 {
 		panic("benchmarking incomplete")
 	}
@@ -67,5 +71,5 @@ func (bench *Benchmark) HistogramClamp(binCount int, min, max time.Duration) *Hi
 			laps = append(laps, lap)
 		}
 	}
-	return NewHistogram(laps, binCount)
+	return benchplot.NewHistogram(laps, binCount)
 }
