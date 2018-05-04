@@ -2,8 +2,6 @@ package hrtime
 
 import (
 	"time"
-
-	"github.com/loov/hrtime/benchplot"
 )
 
 type BenchmarkTSC struct {
@@ -58,15 +56,15 @@ func (bench *BenchmarkTSC) Laps() []time.Duration {
 	return laps
 }
 
-func (bench *BenchmarkTSC) Histogram(binCount int) *benchplot.Histogram {
+func (bench *BenchmarkTSC) Histogram(binCount int) *Histogram {
 	if bench.Stop == 0 {
 		panic("benchmarking incomplete")
 	}
 
-	return benchplot.NewHistogram(bench.Laps(), binCount)
+	return NewHistogram(bench.Laps(), binCount)
 }
 
-func (bench *BenchmarkTSC) HistogramClamp(binCount int, min, max time.Duration) *benchplot.Histogram {
+func (bench *BenchmarkTSC) HistogramClamp(binCount int, min, max time.Duration) *Histogram {
 	if bench.Stop == 0 {
 		panic("benchmarking incomplete")
 	}
@@ -82,5 +80,5 @@ func (bench *BenchmarkTSC) HistogramClamp(binCount int, min, max time.Duration) 
 			laps = append(laps, lap)
 		}
 	}
-	return benchplot.NewHistogram(laps, binCount)
+	return NewHistogram(laps, binCount)
 }
