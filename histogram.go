@@ -96,7 +96,7 @@ func (hist *Histogram) Divide(n int) {
 	}
 }
 
-func (hist *Histogram) WriteTo(w io.Writer) error {
+func (hist *Histogram) WriteTo(w io.Writer) (int64, error) {
 	// TODO: use consistently single unit instead of multiple
 	maxCountLength := 3
 	for i := range hist.Bins {
@@ -106,34 +106,41 @@ func (hist *Histogram) WriteTo(w io.Writer) error {
 		}
 	}
 
-	for _, bin := range hist.Bins {
-		fmt.Sprintf("%[3]*.[2]*[1]f", 12.0, 2, 6)
+	written := int64(0)
 
-		_, err := fmt.Fprintf(w, " %10v [%[2]*[3]v] ", bin.Start, maxCountLength, bin.Count)
+	for _, bin := range hist.Bins {
+		n, err := fmt.Fprintf(w, " %10v [%[2]*[3]v] ", bin.Start, maxCountLength, bin.Count)
+		written += int64(n)
 		if err != nil {
-			return err
+			return written, err
 		}
 
 		width := float64(hist.Width) * bin.Width
 		frac := width - math.Trunc(width)
 
-		if _, err = io.WriteString(w, strings.Repeat("█", int(width))); err != nil {
-			return err
+		n, err = io.WriteString(w, strings.Repeat("█", int(width)))
+		written += int64(n)
+		if err != nil {
+			return written, err
 		}
 		if frac > 0.5 {
-			if _, err = io.WriteString(w, "▌"); err != nil {
-				return err
+			n, err = io.WriteString(w, "▌")
+			written += int64(n)
+			if err != nil {
+				return written, err
 			}
 		}
-		if _, err = fmt.Fprintf(w, "\n"); err != nil {
-			return err
+		n, err = fmt.Fprintf(w, "\n")
+		written += int64(n)
+		if err != nil {
+			return written, err
 		}
 	}
-	return nil
+	return written, nil
 }
 
 func (hist *Histogram) String() string {
 	var buffer strings.Builder
-	_ = hist.WriteTo(&buffer)
+	hist.WriteTo(&buffer)
 	return buffer.String()
 }
