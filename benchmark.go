@@ -5,10 +5,10 @@ import (
 )
 
 type Benchmark struct {
-	Step      int
-	Durations []time.Duration
-	Start     time.Duration
-	Stop      time.Duration
+	step  int
+	laps  []time.Duration
+	start time.Duration
+	stop  time.Duration
 }
 
 func NewBenchmark(count int) *Benchmark {
@@ -17,54 +17,54 @@ func NewBenchmark(count int) *Benchmark {
 	}
 
 	return &Benchmark{
-		Step:      0,
-		Durations: make([]time.Duration, count),
-		Start:     0,
-		Stop:      0,
+		step:  0,
+		laps:  make([]time.Duration, count),
+		start: 0,
+		stop:  0,
 	}
 }
 
 func (bench *Benchmark) finalize(last time.Duration) {
-	if bench.Stop != 0 {
+	if bench.stop != 0 {
 		return
 	}
 
-	bench.Start = bench.Durations[0]
-	bench.Stop = last
-	for i := range bench.Durations[:len(bench.Durations)-1] {
-		bench.Durations[i] = bench.Durations[i+1] - bench.Durations[i]
+	bench.start = bench.laps[0]
+	bench.stop = last
+	for i := range bench.laps[:len(bench.laps)-1] {
+		bench.laps[i] = bench.laps[i+1] - bench.laps[i]
 	}
-	bench.Durations[len(bench.Durations)-1] = bench.Stop - bench.Durations[len(bench.Durations)-1]
+	bench.laps[len(bench.laps)-1] = bench.stop - bench.laps[len(bench.laps)-1]
 }
 
 func (bench *Benchmark) Next() bool {
 	now := Now()
-	if bench.Step >= len(bench.Durations) {
+	if bench.step >= len(bench.laps) {
 		bench.finalize(now)
 		return false
 	}
-	bench.Durations[bench.Step] = Now()
-	bench.Step++
+	bench.laps[bench.step] = Now()
+	bench.step++
 	return true
 }
 
 func (bench *Benchmark) Laps() []time.Duration {
-	return append(bench.Durations[:0:0], bench.Durations...)
+	return append(bench.laps[:0:0], bench.laps...)
 }
 
 func (bench *Benchmark) Histogram(binCount int) *Histogram {
-	if bench.Stop == 0 {
+	if bench.stop == 0 {
 		panic("benchmarking incomplete")
 	}
-	return NewHistogram(bench.Durations, binCount)
+	return NewHistogram(bench.laps, binCount)
 }
 
 func (bench *Benchmark) HistogramClamp(binCount int, min, max time.Duration) *Histogram {
-	if bench.Stop == 0 {
+	if bench.stop == 0 {
 		panic("benchmarking incomplete")
 	}
-	laps := make([]time.Duration, 0, len(bench.Durations))
-	for _, lap := range bench.Durations {
+	laps := make([]time.Duration, 0, len(bench.laps))
+	for _, lap := range bench.laps {
 		if lap < min {
 			laps = append(laps, min)
 		} else if lap > max {

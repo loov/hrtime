@@ -5,10 +5,10 @@ import (
 )
 
 type BenchmarkTSC struct {
-	Step   int
-	Counts []Count
-	Start  Count
-	Stop   Count
+	step   int
+	counts []Count
+	start  Count
+	stop   Count
 }
 
 func NewBenchmarkTSC(count int) *BenchmarkTSC {
@@ -17,47 +17,51 @@ func NewBenchmarkTSC(count int) *BenchmarkTSC {
 	}
 
 	return &BenchmarkTSC{
-		Step:   0,
-		Counts: make([]Count, count),
-		Start:  0,
-		Stop:   0,
+		step:   0,
+		counts: make([]Count, count),
+		start:  0,
+		stop:   0,
 	}
 }
 
 func (bench *BenchmarkTSC) finalize(last Count) {
-	if bench.Stop != 0 {
+	if bench.stop != 0 {
 		return
 	}
 
-	bench.Start = bench.Counts[0]
-	bench.Stop = last
-	for i := range bench.Counts[:len(bench.Counts)-1] {
-		bench.Counts[i] = bench.Counts[i+1] - bench.Counts[i]
+	bench.start = bench.counts[0]
+	bench.stop = last
+	for i := range bench.counts[:len(bench.counts)-1] {
+		bench.counts[i] = bench.counts[i+1] - bench.counts[i]
 	}
-	bench.Counts[len(bench.Counts)-1] = bench.Stop - bench.Counts[len(bench.Counts)-1]
+	bench.counts[len(bench.counts)-1] = bench.stop - bench.counts[len(bench.counts)-1]
 }
 
 func (bench *BenchmarkTSC) Next() bool {
 	now := TSC()
-	if bench.Step >= len(bench.Counts) {
+	if bench.step >= len(bench.counts) {
 		bench.finalize(now)
 		return false
 	}
-	bench.Counts[bench.Step] = TSC()
-	bench.Step++
+	bench.counts[bench.step] = TSC()
+	bench.step++
 	return true
 }
 
+func (bench *BenchmarkTSC) Counts() []Count {
+	return append(bench.counts[:0:0], bench.counts...)
+}
+
 func (bench *BenchmarkTSC) Laps() []time.Duration {
-	laps := make([]time.Duration, len(bench.Counts))
-	for i, v := range bench.Counts {
+	laps := make([]time.Duration, len(bench.counts))
+	for i, v := range bench.counts {
 		laps[i] = v.ApproxDuration()
 	}
 	return laps
 }
 
 func (bench *BenchmarkTSC) Histogram(binCount int) *Histogram {
-	if bench.Stop == 0 {
+	if bench.stop == 0 {
 		panic("benchmarking incomplete")
 	}
 
@@ -65,12 +69,12 @@ func (bench *BenchmarkTSC) Histogram(binCount int) *Histogram {
 }
 
 func (bench *BenchmarkTSC) HistogramClamp(binCount int, min, max time.Duration) *Histogram {
-	if bench.Stop == 0 {
+	if bench.stop == 0 {
 		panic("benchmarking incomplete")
 	}
 
-	laps := make([]time.Duration, 0, len(bench.Counts))
-	for _, count := range bench.Counts {
+	laps := make([]time.Duration, 0, len(bench.counts))
+	for _, count := range bench.counts {
 		lap := count.ApproxDuration()
 		if lap < min {
 			laps = append(laps, min)
