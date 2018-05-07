@@ -1,12 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
-	"io"
-	"math"
-	"os"
+	"image/color"
+	"io/ioutil"
 	"runtime"
 	"runtime/debug"
 	"sort"
@@ -14,19 +12,19 @@ import (
 	_ "unsafe"
 
 	"github.com/loov/hrtime"
+	"github.com/loov/plot"
 )
 
 var (
-	samples = flag.Int("samples", 100e6, "measurements per line")
+	samples = flag.Int("samples", 1e6, "measurements per line")
 	warmup  = flag.Int("warmup", 256, "warmup count")
 	mintime = flag.Float64("min", 0, "minimum ns time to consider")
 	maxtime = flag.Float64("max", 100, "maximum ns time to consider")
 
-	svg     = flag.String("svg", "results.svg", "")
-	density = flag.Int("density", 5000, "points per line for graph")
-	kernel  = flag.Float64("kernel", 0.5, "kernel width")
-	width   = flag.Float64("width", 1500, "svg width")
-	height  = flag.Float64("height", 150, "svg single-plot height")
+	svg    = flag.String("svg", "results.svg", "")
+	kernel = flag.Float64("kernel", 1, "kernel width")
+	width  = flag.Float64("width", 1500, "svg width")
+	height = flag.Float64("height", 150, "svg single-plot height")
 )
 
 func init() {
@@ -87,24 +85,26 @@ func main() {
 			}
 		}
 
-		fmt.Println("benchmarking RDTSC")
-		runtime.GC()
+		if hrtime.TSCSupported() {
+			fmt.Println("benchmarking RDTSC")
+			runtime.GC()
 
-		beforRDTSC = time.Now()
-		for i := range rdtsc {
-			rdtsc[i] = hrtime.RDTSC()
+			beforRDTSC = time.Now()
+			for i := range rdtsc {
+				rdtsc[i] = hrtime.RDTSC()
+			}
+			afterRDTSC = time.Now()
+
+			fmt.Println("benchmarking RDTSCP")
+			runtime.GC()
+			beforRDTSCP = time.Now()
+			for i := range rdtscp {
+				rdtscp[i] = hrtime.RDTSC()
+			}
+			afterRDTSCP = time.Now()
+
+			runtime.GC()
 		}
-		afterRDTSC = time.Now()
-
-		fmt.Println("benchmarking RDTSCP")
-		runtime.GC()
-		beforRDTSCP = time.Now()
-		for i := range rdtscp {
-			rdtscp[i] = hrtime.RDTSC()
-		}
-		afterRDTSCP = time.Now()
-
-		runtime.GC()
 	}
 	debug.SetGCPercent(100)
 
@@ -145,176 +145,56 @@ func main() {
 		)
 	}
 
-	timings = append(timings,
-		&Timing{Name: "RDTSC", Measured: ns_rdtsc},
-		&Timing{Name: "RDTSCP", Measured: ns_rdtscp},
-	)
-
-	out, err := os.Create(*svg)
-	check(err)
-	defer out.Close()
-
-	buf := bufio.NewWriter(out)
-	defer buf.Flush()
-
-	plot(buf, timings)
-}
-
-func plot(w io.Writer, timings []*Timing) {
-	fmt.Println("plotting")
-
-	write := func(format string, args ...interface{}) {
-		fmt.Fprintf(w, format, args...)
+	if hrtime.TSCSupported() {
+		timings = append(timings,
+			&Timing{Name: "RDTSC", Measured: ns_rdtsc},
+			&Timing{Name: "RDTSCP", Measured: ns_rdtscp},
+		)
 	}
 
-	width, height := *width, *height
-	density := *density
-	kernel := *kernel
+	p := plot.New()
 
-	min := *mintime
-	max := *maxtime
-	pointstep := (max - min) / float64(density)
-	tickstepx := *maxtime / 50
-	majtickx := 5
+	p.X.Min = *mintime
+	p.X.Max = *maxtime
+	p.X.MajorTicks = 10
+	p.X.MinorTicks = 10
 
-	if kernel < pointstep {
-		fmt.Println("kernel to small using:", pointstep)
-		kernel = pointstep
-	}
+	stack := plot.NewVStack()
+	stack.Margin = plot.R(5, 5, 5, 5)
+	p.Add(stack)
 
-	tickstepy := 10.0 / 100
-	majticky := 5
-
-	pad := 5.0
-
-	legendwidth := 150.0
-	tox := func(v float64) float64 {
-		return legendwidth + (v-min)*(width-legendwidth)/(max-min)
-	}
-
-	ylog_compress := 50.0
-	ylog_mul := 1 / math.Log(ylog_compress+1)
-	toy := func(p float64) float64 {
-		p = math.Log(p*ylog_compress+1) * ylog_mul
-		return height - p*height
-	}
-
-	write(`<?xml version="1.0" standalone="no"?>
-		<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
-		<svg xmlns="http://www.w3.org/2000/svg"
-			width="%.0fpx" height="%.0fpx">`, width+pad*2, height*float64(len(timings))+pad*2)
-	defer write(`</svg>`)
-
-	write(`<style>
-		/* <![CDATA[ */
-		svg { dominant-baseline: hanging; }
-		polyline { fill: transparent; }
-		.line {
-			stroke: #000;
-			fill: rgba(0,0,0,0.2);
-		}
-		text {
-			font-family: monospace;
-			white-space: pre;
-			font-size: 12px;
-			text-shadow:
-				-1px -1px 0 white,
-				 1px -1px 0 white,
-				 1px  1px 0 white,
-				-1px  1px 0 white;
-		}
-		.ticklabel {
-			font-size: 10px;
-			dominant-baseline: text-after-edge;
-		}
-
-		.ps { font-size: 9px;}
-		/* ]]> */
-	  </style>`)
-
-	const nl = "\n"
-
-	y := 0.0
 	for _, timing := range timings {
-		fmt.Println("plotting ", timing.Name)
-		timing.Prepare(max)
-		func() {
-			write(`<g transform="translate(%.2f,%.2f)">`, pad, pad+y)
-			defer write(`</g>` + nl)
-			y += height
+		timing.Prepare(*mintime, *maxtime)
+		density := plot.NewDensity("ns", timing.Sanitized)
+		density.Kernel = *kernel
+		density.Class = timing.Name
+		density.Stroke = color.NRGBA{0, 0, 0, 255}
+		density.Fill = color.NRGBA{0, 0, 0, 50}
 
-			write(`<rect x="0" y="0" width="%.2f" height="%.2f" style="fill:#f0f0f0;" />`+nl, width, height)
+		flex := plot.NewHFlex()
 
-			var tick int
+		flex.Add(130, plot.NewTextbox(
+			timing.Name,
+			fmt.Sprintf("Measured = %v", len(timing.Measured)),
+			fmt.Sprintf("Zeros = %v", timing.Zero),
+			fmt.Sprintf("Underlimit = %v", timing.Underlimit),
+			fmt.Sprintf("Overlimit = %v", timing.Overlimit),
+		))
+		flex.AddGroup(0,
+			plot.NewGrid(),
+			density,
+			plot.NewTickLabels(),
+		)
 
-			tick = 0
-			for at := min; at <= max; at += tickstepx {
-				write(`<polyline `)
-				if tick%majtickx == 0 {
-					write(`stroke="#333" stroke-dasharray="1, 1" `)
-				} else {
-					write(`stroke="#666" stroke-dasharray="2, 5" `)
-				}
-				tick++
+		stack.Add(flex)
+	}
 
-				write(`points="%.2f,%.2f %.2f,%2.f" />`+nl, tox(at), 0.0, tox(at), height)
+	svgcanvas := plot.NewSVG(*width, *height*float64(len(timings)))
+	p.Draw(svgcanvas)
 
-				write(`<text x="%.0f" y="%.0f" class="ticklabel">%.0f</text>" />`+nl, tox(at), height, at)
-			}
-
-			tick = 0
-			for p := 0.0; p <= 1; p += tickstepy {
-				write(`<polyline `)
-				if tick%majticky == 0 {
-					write(`stroke="#333" stroke-dasharray="1, 1" `)
-				} else {
-					write(`stroke="#666" stroke-dasharray="2, 5" `)
-				}
-				tick++
-
-				write(`points="%.2f,%.2f %.2f,%2.f" />`+nl, 0.0, toy(p), width, toy(p))
-			}
-
-			write(`<polyline class="line" points="`)
-
-			write(`%.2f,%.2f `, tox(min), toy(0))
-			index := 0
-			for at := min; at <= max; at += pointstep {
-				total := 0.0
-				mul := 1.0 / float64(len(timing.Sanitized))
-
-				low, high := at-kernel, at+kernel
-				for ; index <= len(timing.Sanitized); index++ {
-					if timing.Sanitized[index] >= low {
-						break
-					}
-				}
-				for _, time := range timing.Sanitized[index:] {
-					if time > high {
-						break
-					}
-					total += cubicPulse(at, kernel, time) * mul
-				}
-
-				write(`%.2f,%.2f `, tox(at), toy(total))
-			}
-			write(`%.2f,%.2f `, tox(max), toy(0))
-			write(`" />` + nl)
-
-			write(`<rect x="10"  y="5" width="%v" height="%v" style="fill:rgba(255,255,255,0.7);" />`+nl, legendwidth-20, height-10)
-
-			write(`<text x="30"  y="15" style="font-weight: bold;">%v</text>`, timing.Name)
-			write(`<text x="30"  y="30">measu=%v</text>`, len(timing.Measured))
-			write(`<text x="30"  y="45">valid=%v</text>`, len(timing.Sanitized))
-			write(`<text x="30"  y="60">zeros=%v</text>`, timing.Zero)
-			write(`<text x="30"  y="75">overs=%v</text>`, timing.Over)
-
-			write(`<text class="ps" x="30" y="90">avg  = %8.2f</text>`, timing.Average)
-			write(`<text class="ps" x="30" y="100">.5   = %8.2f</text>`, timing.Ps[0])
-			write(`<text class="ps" x="30" y="110">.9   = %8.2f</text>`, timing.Ps[1])
-			write(`<text class="ps" x="30" y="120">.99  = %8.2f</text>`, timing.Ps[2])
-			write(`<text class="ps" x="30" y="130">.999 = %8.2f</text>`, timing.Ps[3])
-		}()
+	err := ioutil.WriteFile(*svg, svgcanvas.Bytes(), 0755)
+	if err != nil {
+		panic(err)
 	}
 }
 
@@ -323,34 +203,25 @@ type Timing struct {
 	Measured  []float64
 	Sanitized []float64
 
-	Zero int
-	Over int
-
-	Average float64
-	Ps      []float64
+	Zero       int
+	Underlimit int
+	Overlimit  int
 }
 
-func (t *Timing) Prepare(max float64) {
-	t.Sanitized = make([]float64, len(t.Measured))
-
-	copy(t.Sanitized, t.Measured)
+func (t *Timing) Prepare(min, max float64) {
+	t.Sanitized = append(t.Measured[:0:0], t.Measured...)
 	sort.Float64s(t.Sanitized)
 
-	for _, v := range t.Sanitized {
-		if v <= *mintime {
+	for i, v := range t.Sanitized {
+		if v <= 0 {
 			t.Zero++
+		} else if v <= min {
+			t.Sanitized[i] = min
+			t.Underlimit++
 		} else {
 			break
 		}
 	}
-
-	avg := 0.0
-	frac := 1.0 / float64(len(t.Sanitized[t.Zero:]))
-	for _, v := range t.Sanitized[t.Zero:] {
-		avg += v * frac
-	}
-	t.Average = avg
-	t.Ps = quant(t.Sanitized[t.Zero:], 0.5, 0.9, 0.99, 0.999)
 
 	tail := len(t.Sanitized) - 1
 	for ; tail >= 0; tail-- {
@@ -358,41 +229,8 @@ func (t *Timing) Prepare(max float64) {
 			break
 		}
 		t.Sanitized[tail] = max
-		t.Over++
+		t.Overlimit++
 	}
 
 	t.Sanitized = t.Sanitized[t.Zero:]
-	if len(t.Sanitized) == 0 {
-		t.Sanitized = []float64{0}
-	}
-}
-
-func quant(timings []float64, ps ...float64) []float64 {
-	xs := make([]float64, len(ps))
-	for i, p := range ps {
-		pi := int(p * float64(len(timings)))
-		if pi > len(timings) {
-			pi = len(timings)
-		}
-		xs[i] = timings[pi]
-	}
-	return xs
-}
-
-func check(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
-func cubicPulse(center, radius, at float64) float64 {
-	at = at - center
-	if at < 0 {
-		at = -at
-	}
-	if at > radius {
-		return 0
-	}
-	at /= radius
-	return 1 - at*at*(3-2*at)
 }
