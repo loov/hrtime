@@ -1,6 +1,8 @@
 # hrtime
 
-**ALPHA QUALITY**
+[![GoDoc](https://godoc.org/github.com/loov/hrtime?status.svg)](http://godoc.org/github.com/loov/hrtime)
+
+**BETA QUALITY**
 
 Package hrtime implements high-resolution timing functions and benchmarking utilities.
 
