@@ -4,14 +4,17 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"sort"
 	"strings"
 	"time"
 )
 
 type Histogram struct {
-	Minimum time.Duration
-	Average time.Duration
-	Maximum time.Duration
+	Minimum float64
+	Average float64
+	Maximum float64
+
+	P50, P90, P99, P999, P9999 float64
 
 	Bins []HistogramBin
 
@@ -20,48 +23,71 @@ type Histogram struct {
 }
 
 type HistogramBin struct {
-	Start time.Duration
+	Start float64
 	Count int
 	Width float64
 }
 
-func NewHistogram(timing []time.Duration, binCount int) *Histogram {
-	if binCount < 0 {
+func NewDurationHistogram(durations []time.Duration, binCount int) *Histogram {
+	nanos := make([]float64, len(durations))
+	for i, d := range durations {
+		nanos[i] = float64(d.Nanoseconds())
+	}
+	return NewHistogram(nanos, binCount)
+}
+
+func NewHistogram(nanoseconds []float64, binCount int) *Histogram {
+	if binCount <= 1 {
 		panic("binCount must be larger than 0")
 	}
 
 	hist := &Histogram{}
 	hist.Width = 40
 	hist.Bins = make([]HistogramBin, binCount)
-	if len(timing) == 0 {
+	if len(nanoseconds) == 0 {
 		return hist
 	}
 
-	hist.Minimum = timing[0]
-	hist.Average = timing[0] // TODO: fix potential overflow
-	hist.Maximum = timing[0]
+	nanoseconds = append(nanoseconds[:0:0], nanoseconds...)
+	sort.Float64s(nanoseconds)
 
-	for _, x := range timing {
+	hist.Minimum = nanoseconds[0]
+	hist.Maximum = nanoseconds[len(nanoseconds)-1]
+
+	hist.Average = nanoseconds[0]
+	for _, x := range nanoseconds {
 		hist.Average += x
-		if hist.Average < 0 {
-			panic("average overflow")
+	}
+	hist.Average /= float64(len(nanoseconds))
+
+	p := func(p float64) float64 {
+		i := int(math.Round(p * float64(len(nanoseconds))))
+		if i < 0 {
+			i = 0
 		}
-		if x < hist.Minimum {
-			hist.Minimum = x
+		if i >= len(nanoseconds) {
+			i = len(nanoseconds) - 1
 		}
-		if x > hist.Maximum {
-			hist.Maximum = x
-		}
+		return nanoseconds[i]
 	}
 
-	hist.Average /= time.Duration(len(timing))
+	hist.P50 = p(0.50)
+	hist.P90 = p(0.90)
+	hist.P99 = p(0.99)
+	hist.P999 = p(0.999)
+	hist.P9999 = p(0.9999)
 
-	stepSize := float64(hist.Maximum-hist.Minimum) / float64(binCount)
+	span := niceNumber(hist.Maximum-hist.Minimum, false)
+	stepSize := niceNumber(span/float64(binCount-1), true)
+	scaleMin := math.Floor(hist.Minimum/stepSize) * stepSize
+
 	for i := range hist.Bins {
-		hist.Bins[i].Start = time.Duration(stepSize*float64(i)) + hist.Minimum
+		hist.Bins[i].Start = stepSize*float64(i) + scaleMin
 	}
-	for _, x := range timing {
-		k := int(float64(x-hist.Minimum) / stepSize)
+	hist.Bins[0].Start = truncate(hist.Minimum, 3)
+
+	for _, x := range nanoseconds {
+		k := int(float64(x-scaleMin) / stepSize)
 		if k < 0 {
 			k = 0
 		}
@@ -87,12 +113,18 @@ func NewHistogram(timing []time.Duration, binCount int) *Histogram {
 }
 
 func (hist *Histogram) Divide(n int) {
-	hist.Minimum /= time.Duration(n)
-	hist.Average /= time.Duration(n)
-	hist.Maximum /= time.Duration(n)
+	hist.Minimum /= float64(n)
+	hist.Average /= float64(n)
+	hist.Maximum /= float64(n)
+
+	hist.P50 /= float64(n)
+	hist.P90 /= float64(n)
+	hist.P99 /= float64(n)
+	hist.P999 /= float64(n)
+	hist.P9999 /= float64(n)
 
 	for i := range hist.Bins {
-		hist.Bins[i].Start /= time.Duration(n)
+		hist.Bins[i].Start /= float64(n)
 	}
 }
 
@@ -108,8 +140,24 @@ func (hist *Histogram) WriteTo(w io.Writer) (int64, error) {
 
 	written := int64(0)
 
+	n, err := fmt.Fprintf(w, "  avg %v;  min %v;  p50 %v;  max %v;\n  p90 %v;  p99 %v;  p999 %v;  p9999 %v;\n",
+		time.Duration(truncate(hist.Average, 3)),
+		time.Duration(truncate(hist.Minimum, 3)),
+		time.Duration(truncate(hist.P50, 3)),
+		time.Duration(truncate(hist.Maximum, 3)),
+
+		time.Duration(truncate(hist.P90, 3)),
+		time.Duration(truncate(hist.P99, 3)),
+		time.Duration(truncate(hist.P999, 3)),
+		time.Duration(truncate(hist.P9999, 3)),
+	)
+	written += int64(n)
+	if err != nil {
+		return written, err
+	}
+
 	for _, bin := range hist.Bins {
-		n, err := fmt.Fprintf(w, " %10v [%[2]*[3]v] ", bin.Start, maxCountLength, bin.Count)
+		n, err = fmt.Fprintf(w, " %10v [%[2]*[3]v] ", time.Duration(bin.Start), maxCountLength, bin.Count)
 		written += int64(n)
 		if err != nil {
 			return written, err

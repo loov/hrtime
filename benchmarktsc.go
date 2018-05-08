@@ -65,7 +65,7 @@ func (bench *BenchmarkTSC) Histogram(binCount int) *Histogram {
 		panic("benchmarking incomplete")
 	}
 
-	return NewHistogram(bench.Laps(), binCount)
+	return NewDurationHistogram(bench.Laps(), binCount)
 }
 
 func (bench *BenchmarkTSC) HistogramClamp(binCount int, min, max time.Duration) *Histogram {
@@ -84,5 +84,5 @@ func (bench *BenchmarkTSC) HistogramClamp(binCount int, min, max time.Duration) 
 			laps = append(laps, lap)
 		}
 	}
-	return NewHistogram(laps, binCount)
+	return NewDurationHistogram(laps, binCount)
 }
