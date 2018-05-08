@@ -24,3 +24,12 @@ func truncate(v float64, digits int) float64 {
 	scale := math.Pow(10, math.Floor(math.Log10(v))+1-float64(digits))
 	return scale * math.Trunc(v/scale)
 }
+
+func round(v float64, digits int) float64 {
+	if digits == 0 {
+		return 0
+	}
+
+	scale := math.Pow(10, math.Floor(math.Log10(v))+1-float64(digits))
+	return scale * math.Round(v/scale)
+}

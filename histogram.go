@@ -77,17 +77,14 @@ func NewHistogram(nanoseconds []float64, binCount int) *Histogram {
 	hist.P999 = p(0.999)
 	hist.P9999 = p(0.9999)
 
-	span := niceNumber(hist.Maximum-hist.Minimum, false)
-	stepSize := niceNumber(span/float64(binCount-1), true)
-	scaleMin := math.Floor(hist.Minimum/stepSize) * stepSize
+	stepSize := (hist.Maximum - hist.Minimum) / float64(binCount)
 
 	for i := range hist.Bins {
-		hist.Bins[i].Start = stepSize*float64(i) + scaleMin
+		hist.Bins[i].Start = stepSize*float64(i) + hist.Minimum
 	}
-	hist.Bins[0].Start = truncate(hist.Minimum, 3)
 
 	for _, x := range nanoseconds {
-		k := int(float64(x-scaleMin) / stepSize)
+		k := int(float64(x-hist.Minimum) / stepSize)
 		if k < 0 {
 			k = 0
 		}
@@ -157,7 +154,7 @@ func (hist *Histogram) WriteTo(w io.Writer) (int64, error) {
 	}
 
 	for _, bin := range hist.Bins {
-		n, err = fmt.Fprintf(w, " %10v [%[2]*[3]v] ", time.Duration(bin.Start), maxCountLength, bin.Count)
+		n, err = fmt.Fprintf(w, " %10v [%[2]*[3]v] ", time.Duration(round(bin.Start, 3)), maxCountLength, bin.Count)
 		written += int64(n)
 		if err != nil {
 			return written, err
