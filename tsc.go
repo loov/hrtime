@@ -2,16 +2,15 @@ package hrtime
 
 import "time"
 
-// Count represents represents Time Stamp Counter value, when available
+// Count represents represents Time Stamp Counter value, when available.
 //
-// Count doesn't depend on power throttling, sleeping and similar effects
-// making it useful for benchmarking. However it is not reliably convertible to a
-// reasonable time-value.
+// Count doesn't depend on power throttling making it useful for benchmarking.
+// However it is not reliably convertible to a reasonable time-value.
 type Count int64
 
-// ApproxDuration returns approximate conversion into a Duration
+// ApproxDuration returns approximate conversion into a Duration.
 //
-// First call to this function will do calibration and can take several ms
+// First call to this function will do calibration and can take several milliseconds.
 func (count Count) ApproxDuration() time.Duration {
 	if ratioCount == 0 {
 		calculateTSCConversion()
@@ -19,10 +18,16 @@ func (count Count) ApproxDuration() time.Duration {
 	return time.Duration(count) * ratioNano / time.Duration(ratioCount)
 }
 
-// TSC reads the current Time Stamp Counter value
+// TSC reads the current Time Stamp Counter value.
+//
+// Reminder: Time Stamp Count are processor specific and need to be converted to
+// time.Duration with Count.ApproxDuration.
 func TSC() Count { return Count(RDTSC()) }
 
-// TSCSince returns count since start
+// TSCSince returns count since start.
+//
+// Reminder: Time Stamp Count are processor specific and need to be converted to
+// time.Duration with Count.ApproxDuration.
 func TSCSince(start Count) Count { return TSC() - start }
 
 // TSCSupported returns whether processor supports giving invariant time stamp counter values
