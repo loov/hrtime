@@ -179,6 +179,9 @@ func main() {
 			fmt.Sprintf("Zeros = %v", timing.Zero),
 			fmt.Sprintf("Underlimit = %v", timing.Underlimit),
 			fmt.Sprintf("Overlimit = %v", timing.Overlimit),
+			fmt.Sprintf("99.9 = %v", int(timing.P999)),
+			fmt.Sprintf("99.99 = %v", int(timing.P9999)),
+			fmt.Sprintf("Max = %v", int(timing.Max)),
 		))
 		flex.AddGroup(0,
 			plot.NewGrid(),
@@ -206,11 +209,19 @@ type Timing struct {
 	Zero       int
 	Underlimit int
 	Overlimit  int
+
+	P999  float64
+	P9999 float64
+	Max   float64
 }
 
 func (t *Timing) Prepare(min, max float64) {
 	t.Sanitized = append(t.Measured[:0:0], t.Measured...)
 	sort.Float64s(t.Sanitized)
+
+	t.P999 = t.Sanitized[(len(t.Sanitized)-1)*999/1000]
+	t.P9999 = t.Sanitized[(len(t.Sanitized)-1)*9999/10000]
+	t.Max = t.Sanitized[len(t.Sanitized)-1]
 
 	for i, v := range t.Sanitized {
 		if v <= 0 {
