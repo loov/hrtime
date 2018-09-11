@@ -125,18 +125,7 @@ func (hist *Histogram) Divide(n int) {
 	}
 }
 
-func (hist *Histogram) WriteTo(w io.Writer) (int64, error) {
-	// TODO: use consistently single unit instead of multiple
-	maxCountLength := 3
-	for i := range hist.Bins {
-		x := (int)(math.Ceil(math.Log10(float64(hist.Bins[i].Count + 1))))
-		if x > maxCountLength {
-			maxCountLength = x
-		}
-	}
-
-	written := int64(0)
-
+func (hist *Histogram) WriteStatsTo(w io.Writer) (int64, error) {
 	n, err := fmt.Fprintf(w, "  avg %v;  min %v;  p50 %v;  max %v;\n  p90 %v;  p99 %v;  p999 %v;  p9999 %v;\n",
 		time.Duration(truncate(hist.Average, 3)),
 		time.Duration(truncate(hist.Minimum, 3)),
@@ -148,11 +137,25 @@ func (hist *Histogram) WriteTo(w io.Writer) (int64, error) {
 		time.Duration(truncate(hist.P999, 3)),
 		time.Duration(truncate(hist.P9999, 3)),
 	)
-	written += int64(n)
+	return int64(n), err
+}
+
+func (hist *Histogram) WriteTo(w io.Writer) (int64, error) {
+	written, err := hist.WriteStatsTo(w)
 	if err != nil {
 		return written, err
 	}
 
+	// TODO: use consistently single unit instead of multiple
+	maxCountLength := 3
+	for i := range hist.Bins {
+		x := (int)(math.Ceil(math.Log10(float64(hist.Bins[i].Count + 1))))
+		if x > maxCountLength {
+			maxCountLength = x
+		}
+	}
+
+	var n int
 	for _, bin := range hist.Bins {
 		n, err = fmt.Fprintf(w, " %10v [%[2]*[3]v] ", time.Duration(round(bin.Start, 3)), maxCountLength, bin.Count)
 		written += int64(n)
