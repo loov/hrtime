@@ -9,7 +9,7 @@ var nanoOverhead time.Duration
 // Overhead returns approximate overhead for a call to Now() or Since()
 func Overhead() time.Duration { return nanoOverhead }
 
-// Since time.Duration count since start
+// Since returns time.Duration since start
 func Since(start time.Duration) time.Duration { return Now() - start }
 
 func calculateNanosOverhead() {

@@ -8,5 +8,8 @@ func initCPU() {
 	}
 }
 
+// RDTSCP returns 0 for unsupported configuration
 func RDTSCP() uint64 { return 0 }
-func RDTSC() uint64  { return 0 }
+
+// RDTSC returns 0 for unsupported configuration
+func RDTSC() uint64 { return 0 }

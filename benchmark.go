@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// Benchmark helps benchmarking using time.
 type Benchmark struct {
 	step  int
 	laps  []time.Duration
@@ -11,6 +12,7 @@ type Benchmark struct {
 	stop  time.Duration
 }
 
+// NewBenchmark creates a new benchmark using time.
 func NewBenchmark(count int) *Benchmark {
 	if count <= 0 {
 		panic("must have count at least 0")
@@ -24,6 +26,14 @@ func NewBenchmark(count int) *Benchmark {
 	}
 }
 
+// mustBeCompleted checks whether measurement has been completed.
+func (bench *Benchmark) mustBeCompleted() {
+	if bench.stop != 0 {
+		panic("benchmarking incomplete")
+	}
+}
+
+// finalize calculates diffs for each lap.
 func (bench *Benchmark) finalize(last time.Duration) {
 	if bench.stop != 0 {
 		return
@@ -37,6 +47,7 @@ func (bench *Benchmark) finalize(last time.Duration) {
 	bench.laps[len(bench.laps)-1] = bench.stop - bench.laps[len(bench.laps)-1]
 }
 
+// Next starts measuring the next lap.
 func (bench *Benchmark) Next() bool {
 	now := Now()
 	if bench.step >= len(bench.laps) {
@@ -48,21 +59,23 @@ func (bench *Benchmark) Next() bool {
 	return true
 }
 
+// Laps returns timing for each lap.
 func (bench *Benchmark) Laps() []time.Duration {
+	bench.mustBeCompleted()
 	return append(bench.laps[:0:0], bench.laps...)
 }
 
+// Histogram creates an histogram of all the laps.
 func (bench *Benchmark) Histogram(binCount int) *Histogram {
-	if bench.stop == 0 {
-		panic("benchmarking incomplete")
-	}
+	bench.mustBeCompleted()
+
 	return NewDurationHistogram(bench.laps, binCount)
 }
 
+// HistogramClamp creates an historgram of all the laps clamping minimum and maximum time.
 func (bench *Benchmark) HistogramClamp(binCount int, min, max time.Duration) *Histogram {
-	if bench.stop == 0 {
-		panic("benchmarking incomplete")
-	}
+	bench.mustBeCompleted()
+
 	laps := make([]time.Duration, 0, len(bench.laps))
 	for _, lap := range bench.laps {
 		if lap < min {

@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// Histogram is a binned historgram with different statistics.
 type Histogram struct {
 	Minimum float64
 	Average float64
@@ -22,12 +23,14 @@ type Histogram struct {
 	Width int
 }
 
+// HistogramBin is a single bin in histogram
 type HistogramBin struct {
 	Start float64
 	Count int
 	Width float64
 }
 
+// NewDurationHistogram creates a histogram from time.Duration-s.
 func NewDurationHistogram(durations []time.Duration, binCount int) *Histogram {
 	nanos := make([]float64, len(durations))
 	for i, d := range durations {
@@ -36,6 +39,7 @@ func NewDurationHistogram(durations []time.Duration, binCount int) *Histogram {
 	return NewHistogram(nanos, binCount)
 }
 
+// NewHistogram creates a new histogram from nanoseconds.
 func NewHistogram(nanoseconds []float64, binCount int) *Histogram {
 	if binCount <= 1 {
 		panic("binCount must be larger than 0")
@@ -109,6 +113,7 @@ func NewHistogram(nanoseconds []float64, binCount int) *Histogram {
 	return hist
 }
 
+// Divide divides histogram by number of repetitions for the tests.
 func (hist *Histogram) Divide(n int) {
 	hist.Minimum /= float64(n)
 	hist.Average /= float64(n)
@@ -125,6 +130,7 @@ func (hist *Histogram) Divide(n int) {
 	}
 }
 
+// WriteStatsTo writes formatted statistics to w.
 func (hist *Histogram) WriteStatsTo(w io.Writer) (int64, error) {
 	n, err := fmt.Fprintf(w, "  avg %v;  min %v;  p50 %v;  max %v;\n  p90 %v;  p99 %v;  p999 %v;  p9999 %v;\n",
 		time.Duration(truncate(hist.Average, 3)),
@@ -140,6 +146,7 @@ func (hist *Histogram) WriteStatsTo(w io.Writer) (int64, error) {
 	return int64(n), err
 }
 
+// WriteTo writes formatted statistics and histogram to w.
 func (hist *Histogram) WriteTo(w io.Writer) (int64, error) {
 	written, err := hist.WriteStatsTo(w)
 	if err != nil {
@@ -187,6 +194,7 @@ func (hist *Histogram) WriteTo(w io.Writer) (int64, error) {
 	return written, nil
 }
 
+// String returns a string representation of the histogram.
 func (hist *Histogram) String() string {
 	var buffer strings.Builder
 	hist.WriteTo(&buffer)

@@ -26,7 +26,7 @@ func TSC() Count { return Count(RDTSC()) }
 
 // TSCSince returns count since start.
 //
-// Reminder: Time Stamp Count are processor specific and need to be converted to
+// Reminder: Count is processor specific and need to be converted to
 // time.Duration with Count.ApproxDuration.
 func TSCSince(start Count) Count { return TSC() - start }
 

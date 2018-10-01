@@ -8,5 +8,8 @@ func initCPU() {
 	cpuid = cpuidAsm
 }
 
+// RDTSCP returns Read Time-Stamp Counter value using RDTSCP asm instruction.
 func RDTSCP() uint64 { return rdtscpAsm() }
-func RDTSC() uint64  { return rdtscAsm() }
+
+// RDTSC returns Read Time-Stamp Counter value using RDTSC asm instruction.
+func RDTSC() uint64 { return rdtscAsm() }
