@@ -194,6 +194,13 @@ func (hist *Histogram) WriteTo(w io.Writer) (int64, error) {
 	return written, nil
 }
 
+// StringStats returns a string representation of the histogram stats.
+func (hist *Histogram) StringStats() string {
+	var buffer strings.Builder
+	hist.WriteStatsTo(&buffer)
+	return buffer.String()
+}
+
 // String returns a string representation of the histogram.
 func (hist *Histogram) String() string {
 	var buffer strings.Builder
