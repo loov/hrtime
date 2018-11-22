@@ -28,7 +28,7 @@ func NewBenchmarkTSC(count int) *BenchmarkTSC {
 
 // mustBeCompleted checks whether measurement has been completed.
 func (bench *BenchmarkTSC) mustBeCompleted() {
-	if bench.stop != 0 {
+	if bench.stop == 0 {
 		panic("benchmarking incomplete")
 	}
 }
@@ -61,11 +61,15 @@ func (bench *BenchmarkTSC) Next() bool {
 
 // Counts returns counts for each lap.
 func (bench *BenchmarkTSC) Counts() []Count {
+	bench.mustBeCompleted()
+
 	return append(bench.counts[:0:0], bench.counts...)
 }
 
 // Laps returns timing for each lap using the approximate conversion of Count.
 func (bench *BenchmarkTSC) Laps() []time.Duration {
+	bench.mustBeCompleted()
+
 	laps := make([]time.Duration, len(bench.counts))
 	for i, v := range bench.counts {
 		laps[i] = v.ApproxDuration()

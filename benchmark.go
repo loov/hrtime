@@ -28,7 +28,7 @@ func NewBenchmark(count int) *Benchmark {
 
 // mustBeCompleted checks whether measurement has been completed.
 func (bench *Benchmark) mustBeCompleted() {
-	if bench.stop != 0 {
+	if bench.stop == 0 {
 		panic("benchmarking incomplete")
 	}
 }
@@ -68,7 +68,6 @@ func (bench *Benchmark) Laps() []time.Duration {
 // Histogram creates an histogram of all the laps.
 func (bench *Benchmark) Histogram(binCount int) *Histogram {
 	bench.mustBeCompleted()
-
 	return NewDurationHistogram(bench.laps, binCount)
 }
 
