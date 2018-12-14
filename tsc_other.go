@@ -1,6 +1,6 @@
 // +build !amd64 gccgo
 
-package tsc
+package hrtime
 
 func initCPU() {
 	cpuid = func(op1, op2 uint32) (eax, ebx, ecx, edx uint32) {
