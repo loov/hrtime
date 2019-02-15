@@ -12,8 +12,9 @@ import (
 func main() {
 	ConsoleHistogram()
 	DensityPlot()
+	PercentilesPlot()
 	TimingPlot()
-	TimingAndDensityPlot()
+	StackedPlot()
 }
 
 // ConsoleHistogram demonstrates how to measure and print the output to console.
@@ -29,7 +30,7 @@ func ConsoleHistogram() {
 
 // TimingPlot demonstrates how to plot timing values based on the order.
 func TimingPlot() {
-	fmt.Println("Timing Plot (timing-plot.svg)")
+	fmt.Println("Timing Plot (timing.svg)")
 
 	bench := hrtime.NewBenchmark(4 << 10)
 	for bench.Next() {
@@ -49,12 +50,12 @@ func TimingPlot() {
 
 	svg := plot.NewSVG(800, 300)
 	p.Draw(svg)
-	ioutil.WriteFile("timing-plot.svg", svg.Bytes(), 0755)
+	ioutil.WriteFile("timing.svg", svg.Bytes(), 0755)
 }
 
 // DensityPlot demonstrates how to create a density plot from the values.
 func DensityPlot() {
-	fmt.Println("Density Plot (density-plot.svg)")
+	fmt.Println("Density Plot (density.svg)")
 
 	bench := hrtime.NewBenchmark(4 << 10)
 	for bench.Next() {
@@ -74,12 +75,38 @@ func DensityPlot() {
 
 	svg := plot.NewSVG(800, 300)
 	p.Draw(svg)
-	ioutil.WriteFile("density-plot.svg", svg.Bytes(), 0755)
+	ioutil.WriteFile("density.svg", svg.Bytes(), 0755)
 }
 
-// TimingAndDensityPlot demonstrates how to combine both plots
-func TimingAndDensityPlot() {
-	fmt.Println("Stacked Plot (stacked-plot.svg)")
+// PercentilesPlot demonstrates how to create a percentiles plot from the values.
+func PercentilesPlot() {
+	fmt.Println("Percentiles Plot (percentiles.svg)")
+
+	bench := hrtime.NewBenchmark(4 << 10)
+	for bench.Next() {
+		time.Sleep(5000 * time.Nanosecond)
+	}
+
+	seconds := plot.DurationToSeconds(bench.Laps())
+
+	p := plot.New()
+	p.Margin = plot.R(5, 0, 0, 5)
+	p.X = plot.NewPercentilesAxis()
+	p.AddGroup(
+		plot.NewGrid(),
+		plot.NewGizmo(),
+		plot.NewPercentiles("", seconds),
+		plot.NewTickLabels(),
+	)
+
+	svg := plot.NewSVG(800, 300)
+	p.Draw(svg)
+	ioutil.WriteFile("percentiles.svg", svg.Bytes(), 0755)
+}
+
+// StackedPlot demonstrates how to combine plots
+func StackedPlot() {
+	fmt.Println("Stacked Plot (stacked.svg)")
 
 	bench := hrtime.NewBenchmark(4 << 10)
 	for bench.Next() {
@@ -111,7 +138,17 @@ func TimingAndDensityPlot() {
 		plot.NewTickLabels(),
 	)
 
+	percentilesplot := plot.NewAxisGroup()
+	percentilesplot.X = plot.NewPercentilesAxis()
+	stack.Add(percentilesplot)
+	percentilesplot.AddGroup(
+		plot.NewGrid(),
+		plot.NewGizmo(),
+		plot.NewPercentiles("", seconds),
+		plot.NewTickLabels(),
+	)
+
 	svg := plot.NewSVG(800, 600)
 	p.Draw(svg)
-	ioutil.WriteFile("stacked-plot.svg", svg.Bytes(), 0755)
+	ioutil.WriteFile("stacked.svg", svg.Bytes(), 0755)
 }
