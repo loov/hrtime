@@ -2,15 +2,51 @@ package hrtime
 
 import "math"
 
+const useNiceSteps = true
+
+func calculateSteps(min, max float64, bincount int) (minimum, spacing float64) {
+	if useNiceSteps {
+		return calculateNiceSteps(min, max, bincount)
+	}
+	minimum = min
+	spacing = (max - min) / float64(bincount)
+	return minimum, spacing
+}
+
+func calculateNiceSteps(min, max float64, bincount int) (minimum, spacing float64) {
+	span := niceNumber(max-min, false)
+	spacing = niceNumber(span/float64(bincount-1), true)
+	minimum = math.Floor(min/spacing) * spacing
+	return minimum, spacing
+}
+
 func niceNumber(span float64, round bool) float64 {
 	exp := math.Floor(math.Log10(span))
 	frac := span / math.Pow(10, exp)
 
 	var nice float64
 	if round {
-		nice = math.Round(frac)
+		switch {
+		case frac < 1.5:
+			nice = 1
+		case frac < 3:
+			nice = 2
+		case frac < 7:
+			nice = 5
+		default:
+			nice = 10
+		}
 	} else {
-		nice = math.Ceil(frac)
+		switch {
+		case frac <= 1:
+			nice = 1
+		case frac <= 2:
+			nice = 2
+		case frac <= 5:
+			nice = 5
+		default:
+			nice = 10
+		}
 	}
 
 	return nice * math.Pow(10, exp)
