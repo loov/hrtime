@@ -148,6 +148,8 @@ func (hist *Histogram) WriteStatsTo(w io.Writer) (int64, error) {
 	return int64(n), err
 }
 
+var partialBlock = []string{` `, `▏`, `▎`, `▍`, `▌`, `▋`, `▊`, `▉`, `█`}
+
 // WriteTo writes formatted statistics and histogram to w.
 func (hist *Histogram) WriteTo(w io.Writer) (int64, error) {
 	written, err := hist.WriteStatsTo(w)
@@ -180,8 +182,16 @@ func (hist *Histogram) WriteTo(w io.Writer) (int64, error) {
 		if err != nil {
 			return written, err
 		}
-		if frac > 0.5 {
-			n, err = io.WriteString(w, "▌")
+
+		block := int(math.Floor(frac * 9))
+
+		// always output something when we have low count
+		if int(width) == 0 && block == 0 && bin.Count > 0 {
+			block = 1
+		}
+
+		if block > 0 {
+			n, err = io.WriteString(w, partialBlock[block])
 			written += int64(n)
 			if err != nil {
 				return written, err
