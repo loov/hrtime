@@ -123,33 +123,28 @@ func StackedPlot() {
 
 	seconds := plot.DurationToSeconds(bench.Laps())
 
-	lineplot := plot.NewAxisGroup()
-	stack.Add(lineplot)
-	lineplot.AddGroup(
+	stack.Add(plot.NewAxisGroup(
 		plot.NewGrid(),
 		plot.NewGizmo(),
 		plot.NewLine("", plot.Points(nil, seconds)),
 		plot.NewTickLabels(),
-	)
+	))
 
-	densityplot := plot.NewAxisGroup()
-	stack.Add(densityplot)
-	densityplot.AddGroup(
+	stack.Add(plot.NewAxisGroup(
 		plot.NewGrid(),
 		plot.NewGizmo(),
 		plot.NewDensity("", seconds),
 		plot.NewTickLabels(),
-	)
+	))
 
-	percentilesplot := plot.NewAxisGroup()
-	percentilesplot.X = plot.NewPercentilesAxis()
-	stack.Add(percentilesplot)
-	percentilesplot.AddGroup(
+	percentiles := plot.NewAxisGroup(
 		plot.NewGrid(),
 		plot.NewGizmo(),
 		plot.NewPercentiles("", seconds),
 		plot.NewTickLabels(),
 	)
+	percentiles.X = plot.NewPercentilesAxis()
+	stack.Add(percentiles)
 
 	svg := plot.NewSVG(800, 600)
 	p.Draw(svg)
