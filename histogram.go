@@ -81,14 +81,16 @@ func NewHistogram(nanoseconds []float64, binCount int) *Histogram {
 	hist.P999 = p(0.999)
 	hist.P9999 = p(0.9999)
 
-	stepSize := (hist.Maximum - hist.Minimum) / float64(binCount)
+	span := niceNumber(hist.Maximum-hist.Minimum, false)
+	spacing := niceNumber(span/float64(binCount-1), true)
+	minimum := math.Floor(hist.Minimum/spacing) * spacing
 
 	for i := range hist.Bins {
-		hist.Bins[i].Start = stepSize*float64(i) + hist.Minimum
+		hist.Bins[i].Start = spacing*float64(i) + minimum
 	}
 
 	for _, x := range nanoseconds {
-		k := int(float64(x-hist.Minimum) / stepSize)
+		k := int(float64(x-minimum) / spacing)
 		if k < 0 {
 			k = 0
 		}
