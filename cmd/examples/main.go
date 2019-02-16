@@ -17,11 +17,14 @@ func main() {
 	StackedPlot()
 }
 
+// N is the number of experiments
+const N = 5000
+
 // ConsoleHistogram demonstrates how to measure and print the output to console.
 func ConsoleHistogram() {
 	fmt.Println("Console Histogram")
 
-	bench := hrtime.NewBenchmark(4 << 10)
+	bench := hrtime.NewBenchmark(N)
 	for bench.Next() {
 		time.Sleep(5000 * time.Nanosecond)
 	}
@@ -32,7 +35,7 @@ func ConsoleHistogram() {
 func TimingPlot() {
 	fmt.Println("Timing Plot (timing.svg)")
 
-	bench := hrtime.NewBenchmark(4 << 10)
+	bench := hrtime.NewBenchmark(N)
 	for bench.Next() {
 		time.Sleep(5000 * time.Nanosecond)
 	}
@@ -57,7 +60,7 @@ func TimingPlot() {
 func DensityPlot() {
 	fmt.Println("Density Plot (density.svg)")
 
-	bench := hrtime.NewBenchmark(4 << 10)
+	bench := hrtime.NewBenchmark(N)
 	for bench.Next() {
 		time.Sleep(5000 * time.Nanosecond)
 	}
@@ -82,7 +85,7 @@ func DensityPlot() {
 func PercentilesPlot() {
 	fmt.Println("Percentiles Plot (percentiles.svg)")
 
-	bench := hrtime.NewBenchmark(4 << 10)
+	bench := hrtime.NewBenchmark(N)
 	for bench.Next() {
 		time.Sleep(5000 * time.Nanosecond)
 	}
@@ -108,7 +111,7 @@ func PercentilesPlot() {
 func StackedPlot() {
 	fmt.Println("Stacked Plot (stacked.svg)")
 
-	bench := hrtime.NewBenchmark(4 << 10)
+	bench := hrtime.NewBenchmark(N)
 	for bench.Next() {
 		time.Sleep(5000 * time.Nanosecond)
 	}
