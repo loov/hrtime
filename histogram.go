@@ -86,6 +86,7 @@ func NewHistogram(nanoseconds []float64, binCount int) *Histogram {
 	for i := range hist.Bins {
 		hist.Bins[i].Start = spacing*float64(i) + minimum
 	}
+	hist.Bins[0].Start = hist.Minimum
 
 	for _, x := range nanoseconds {
 		k := int(float64(x-minimum) / spacing)
