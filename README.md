@@ -52,17 +52,19 @@ Output on Mac:
 Output on Windows:
 
 ```
-836.599µs
-   710.64µs [    5]
-  854.331µs [  469] ██████████████▌
-  998.022µs [ 1125] ██████████████████████████████████▌
- 1.141713ms [ 1286] ████████████████████████████████████████
- 1.285405ms [  134] ████
- 1.429096ms [  468] ██████████████▌
- 1.572787ms [  473] ██████████████▌
- 1.716479ms [   85] ██▌
-  1.86017ms [   27] ▌
- 2.003861ms [   24] ▌
+1.0633ms
+  avg 1.48ms;  min 622µs;  p50 1.06ms;  max 2.39ms;
+  p90 2.01ms;  p99 2.26ms;  p999 2.36ms;  p9999 2.39ms;
+      622µs [  58] █▊
+      800µs [ 640] ██████████████████▍
+        1ms [1388] ████████████████████████████████████████
+      1.2ms [  44] █▎
+      1.4ms [  16] ▌
+      1.6ms [  62] █▉
+      1.8ms [ 969] ████████████████████████████
+        2ms [ 803] ███████████████████████▏
+      2.2ms [ 116] ███▍
+      2.4ms [   0]
 ```
 
 _The full explanation why it outputs this is out of the scope of this document. However all sleep instructions have a specified granularity and `time.Sleep` actual sleeping time is `requested time ± sleep granularity`. Of course there are other exceptions to that behavior._
