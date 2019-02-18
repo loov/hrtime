@@ -10,7 +10,8 @@
 //     )
 //
 //     func main() {
-//         bench := hrtime.NewBenchmark(4 << 10)
+//         const numberOfExperiments = 4096
+//         bench := hrtime.NewBenchmark(numberOfExperiments)
 //         for bench.Next() {
 //             time.Sleep(10)
 //         }
