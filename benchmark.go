@@ -13,6 +13,7 @@ type Benchmark struct {
 }
 
 // NewBenchmark creates a new benchmark using time.
+// Count defines the number of samples to measure.
 func NewBenchmark(count int) *Benchmark {
 	if count <= 0 {
 		panic("must have count at least 0")
@@ -48,6 +49,7 @@ func (bench *Benchmark) finalize(last time.Duration) {
 }
 
 // Next starts measuring the next lap.
+// It will return false, when all measurements have been made.
 func (bench *Benchmark) Next() bool {
 	now := Now()
 	if bench.step >= len(bench.laps) {

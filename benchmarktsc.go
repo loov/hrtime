@@ -13,6 +13,7 @@ type BenchmarkTSC struct {
 }
 
 // NewBenchmarkTSC creates a new benchmark using CPU counters.
+// Count defines the number of samples to measure.
 func NewBenchmarkTSC(count int) *BenchmarkTSC {
 	if count <= 0 {
 		panic("must have count at least 0")
@@ -48,6 +49,7 @@ func (bench *BenchmarkTSC) finalize(last Count) {
 }
 
 // Next starts measuring the next lap.
+// It will return false, when all measurements have been made.
 func (bench *BenchmarkTSC) Next() bool {
 	now := TSC()
 	if bench.step >= len(bench.counts) {

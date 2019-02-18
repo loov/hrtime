@@ -23,7 +23,9 @@ func main() {
     time.Sleep(1000 * time.Nanosecond)
     fmt.Println(hrtime.Since(start))
 
-    bench := hrtime.NewBenchmark(4 << 10)
+    const numberOfExperiments = 4096
+
+    bench := hrtime.NewBenchmark(numberOfExperiments)
     for bench.Next() {
         time.Sleep(1000 * time.Nanosecond)
     }

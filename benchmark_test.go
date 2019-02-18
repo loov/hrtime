@@ -9,7 +9,8 @@ import (
 )
 
 func ExampleBenchmark() {
-	bench := hrtime.NewBenchmark(4 << 10)
+	const numberOfExperiments = 4096
+	bench := hrtime.NewBenchmark(numberOfExperiments)
 	for bench.Next() {
 		time.Sleep(1000 * time.Nanosecond)
 	}
@@ -17,7 +18,8 @@ func ExampleBenchmark() {
 }
 
 func ExampleBenchmarkTSC() {
-	bench := hrtime.NewBenchmarkTSC(4 << 10)
+	const numberOfExperiments = 4096
+	bench := hrtime.NewBenchmarkTSC(numberOfExperiments)
 	for bench.Next() {
 		time.Sleep(1000 * time.Nanosecond)
 	}
