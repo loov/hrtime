@@ -1,5 +1,3 @@
-// +build example
-
 // This program demonstrates the basic usage of the package.
 package main
 

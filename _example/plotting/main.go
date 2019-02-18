@@ -1,5 +1,3 @@
-// +build example
-
 // plotting demonstrates how to combine hrtime with plot package.
 package main
 

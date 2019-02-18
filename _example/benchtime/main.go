@@ -1,5 +1,3 @@
-// +build example
-
 // benchtime implements measuring and plotting of timing overheads.
 package main
 
