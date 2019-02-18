@@ -1,3 +1,6 @@
+// +build example
+
+// plotting demonstrates how to combine hrtime with plot package.
 package main
 
 import (
@@ -10,7 +13,6 @@ import (
 )
 
 func main() {
-	ConsoleHistogram()
 	DensityPlot()
 	PercentilesPlot()
 	TimingPlot()
@@ -19,17 +21,6 @@ func main() {
 
 // N is the number of experiments
 const N = 5000
-
-// ConsoleHistogram demonstrates how to measure and print the output to console.
-func ConsoleHistogram() {
-	fmt.Println("Console Histogram")
-
-	bench := hrtime.NewBenchmark(N)
-	for bench.Next() {
-		time.Sleep(5000 * time.Nanosecond)
-	}
-	fmt.Println(bench.Histogram(10))
-}
 
 // TimingPlot demonstrates how to plot timing values based on the order.
 func TimingPlot() {

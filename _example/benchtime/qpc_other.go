@@ -1,4 +1,4 @@
-// +build !windows
+// +build example !windows
 
 package main
 
