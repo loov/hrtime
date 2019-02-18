@@ -17,7 +17,7 @@
 //         fmt.Println(bench.Histogram(10))
 //     }
 //
-// To see more complex refer to the _example folder.
+// To see more complex examples refer to the _example folder. (https://github.com/loov/hrtime/tree/master/_example)
 package hrtime
 
 const calibrationCalls = 1 << 10
