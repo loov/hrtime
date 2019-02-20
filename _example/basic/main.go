@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/loov/hrtime"
@@ -17,6 +18,9 @@ func main() {
 	bench := hrtime.NewBenchmark(numberOfExperiments)
 	for bench.Next() {
 		time.Sleep(1000 * time.Nanosecond)
+		if rand.Intn(2000) == 0 {
+			time.Sleep(time.Second)
+		}
 	}
 	fmt.Println(bench.Histogram(10))
 }

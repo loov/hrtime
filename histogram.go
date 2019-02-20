@@ -9,6 +9,20 @@ import (
 	"time"
 )
 
+// HistogramOptions is configuration.
+type HistogramOptions struct {
+	BinCount int
+
+	ClampMaximum    float64
+	ClampPercentile float64
+}
+
+var defaultOptions = HistogramOptions{
+	BinCount:        10,
+	ClampMaximum:    0,
+	ClampPercentile: 0.999,
+}
+
 // Histogram is a binned historgram with different statistics.
 type Histogram struct {
 	Minimum float64
@@ -25,29 +39,29 @@ type Histogram struct {
 
 // HistogramBin is a single bin in histogram
 type HistogramBin struct {
-	Start float64
-	Count int
-	Width float64
+	Start    float64
+	Count    int
+	Width    float64
+	andAbove bool
 }
 
 // NewDurationHistogram creates a histogram from time.Duration-s.
-func NewDurationHistogram(durations []time.Duration, binCount int) *Histogram {
+func NewDurationHistogram(durations []time.Duration, opts *HistogramOptions) *Histogram {
 	nanos := make([]float64, len(durations))
 	for i, d := range durations {
 		nanos[i] = float64(d.Nanoseconds())
 	}
-	return NewHistogram(nanos, binCount)
+	return NewHistogram(nanos, opts)
 }
 
-// NewHistogram creates a new histogram from nanoseconds.
-func NewHistogram(nanoseconds []float64, binCount int) *Histogram {
-	if binCount <= 1 {
+func NewHistogram(nanoseconds []float64, opts *HistogramOptions) *Histogram {
+	if opts.BinCount <= 1 {
 		panic("binCount must be larger than 0")
 	}
 
 	hist := &Histogram{}
 	hist.Width = 40
-	hist.Bins = make([]HistogramBin, binCount)
+	hist.Bins = make([]HistogramBin, opts.BinCount)
 	if len(nanoseconds) == 0 {
 		return hist
 	}
@@ -75,13 +89,17 @@ func NewHistogram(nanoseconds []float64, binCount int) *Histogram {
 		return nanoseconds[i]
 	}
 
-	hist.P50 = p(0.50)
-	hist.P90 = p(0.90)
-	hist.P99 = p(0.99)
-	hist.P999 = p(0.999)
-	hist.P9999 = p(0.9999)
+	hist.P50, hist.P90, hist.P99, hist.P999, hist.P9999 = p(0.50), p(0.90), p(0.99), p(0.999), p(0.9999)
 
-	minimum, spacing := calculateSteps(hist.Minimum, hist.Maximum, binCount)
+	clampMaximum := hist.Maximum
+	if opts.ClampPercentile > 0 {
+		clampMaximum = p(opts.ClampPercentile)
+	}
+	if opts.ClampMaximum > 0 {
+		clampMaximum = opts.ClampMaximum
+	}
+
+	minimum, spacing := calculateSteps(hist.Minimum, clampMaximum, opts.BinCount)
 
 	for i := range hist.Bins {
 		hist.Bins[i].Start = spacing*float64(i) + minimum
@@ -93,8 +111,9 @@ func NewHistogram(nanoseconds []float64, binCount int) *Histogram {
 		if k < 0 {
 			k = 0
 		}
-		if k >= binCount {
-			k = binCount - 1
+		if k >= opts.BinCount {
+			k = opts.BinCount - 1
+			hist.Bins[k].andAbove = true
 		}
 		hist.Bins[k].Count++
 	}
@@ -165,7 +184,12 @@ func (hist *Histogram) WriteTo(w io.Writer) (int64, error) {
 
 	var n int
 	for _, bin := range hist.Bins {
-		n, err = fmt.Fprintf(w, " %10v [%[2]*[3]v] ", time.Duration(round(bin.Start, 3)), maxCountLength, bin.Count)
+		if bin.andAbove {
+			n, err = fmt.Fprintf(w, " %10v+[%[2]*[3]v] ", time.Duration(round(bin.Start, 3)), maxCountLength, bin.Count)
+		} else {
+			n, err = fmt.Fprintf(w, " %10v [%[2]*[3]v] ", time.Duration(round(bin.Start, 3)), maxCountLength, bin.Count)
+		}
+
 		written += int64(n)
 		if err != nil {
 			return written, err

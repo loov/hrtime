@@ -70,7 +70,11 @@ func (bench *Benchmark) Laps() []time.Duration {
 // Histogram creates an histogram of all the laps.
 func (bench *Benchmark) Histogram(binCount int) *Histogram {
 	bench.mustBeCompleted()
-	return NewDurationHistogram(bench.laps, binCount)
+
+	opts := defaultOptions
+	opts.BinCount = binCount
+
+	return NewDurationHistogram(bench.laps, &opts)
 }
 
 // HistogramClamp creates an historgram of all the laps clamping minimum and maximum time.
@@ -81,11 +85,15 @@ func (bench *Benchmark) HistogramClamp(binCount int, min, max time.Duration) *Hi
 	for _, lap := range bench.laps {
 		if lap < min {
 			laps = append(laps, min)
-		} else if lap > max {
-			laps = append(laps, max)
 		} else {
 			laps = append(laps, lap)
 		}
 	}
-	return NewDurationHistogram(laps, binCount)
+
+	opts := defaultOptions
+	opts.BinCount = binCount
+	opts.ClampMaximum = float64(max.Nanoseconds())
+	opts.ClampPercentile = 0
+
+	return NewDurationHistogram(laps, &opts)
 }
