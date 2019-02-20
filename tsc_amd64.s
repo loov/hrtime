@@ -1,6 +1,6 @@
-#include "textflag.h"
+// +build amd64,!gccgo
 
-//+build amd64,!gccgo
+#include "textflag.h"
 
 // func rdtscpAsm() uint64
 TEXT ·rdtscpAsm(SB),NOSPLIT,$0-8
