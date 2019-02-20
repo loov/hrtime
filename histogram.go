@@ -12,13 +12,16 @@ import (
 // HistogramOptions is configuration.
 type HistogramOptions struct {
 	BinCount int
-
+	// NiceRange will try to round the bucket sizes to have a nicer output.
+	NiceRange bool
+	// Clamp values to either percentile or to a specific ns value.
 	ClampMaximum    float64
 	ClampPercentile float64
 }
 
 var defaultOptions = HistogramOptions{
 	BinCount:        10,
+	NiceRange:       true,
 	ClampMaximum:    0,
 	ClampPercentile: 0.999,
 }
@@ -99,7 +102,13 @@ func NewHistogram(nanoseconds []float64, opts *HistogramOptions) *Histogram {
 		clampMaximum = opts.ClampMaximum
 	}
 
-	minimum, spacing := calculateSteps(hist.Minimum, clampMaximum, opts.BinCount)
+	var minimum, spacing float64
+
+	if opts.NiceRange {
+		minimum, spacing = calculateNiceSteps(hist.Minimum, clampMaximum, opts.BinCount)
+	} else {
+		minimum, spacing = calculateSteps(hist.Minimum, clampMaximum, opts.BinCount)
+	}
 
 	for i := range hist.Bins {
 		hist.Bins[i].Start = spacing*float64(i) + minimum

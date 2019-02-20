@@ -68,6 +68,10 @@ func (bench *Benchmark) Laps() []time.Duration {
 }
 
 // Histogram creates an histogram of all the laps.
+//
+// It creates binCount bins to distribute the data and uses the
+// 99.9 percentile as the last bucket range. However, for a nicer output
+// it might choose a larger value.
 func (bench *Benchmark) Histogram(binCount int) *Histogram {
 	bench.mustBeCompleted()
 
@@ -78,6 +82,9 @@ func (bench *Benchmark) Histogram(binCount int) *Histogram {
 }
 
 // HistogramClamp creates an historgram of all the laps clamping minimum and maximum time.
+//
+// It creates binCount bins to distribute the data and uses the
+// maximum as the last bucket.
 func (bench *Benchmark) HistogramClamp(binCount int, min, max time.Duration) *Histogram {
 	bench.mustBeCompleted()
 

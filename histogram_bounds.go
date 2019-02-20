@@ -2,12 +2,7 @@ package hrtime
 
 import "math"
 
-const useNiceSteps = true
-
 func calculateSteps(min, max float64, bincount int) (minimum, spacing float64) {
-	if useNiceSteps {
-		return calculateNiceSteps(min, max, bincount)
-	}
 	minimum = min
 	spacing = (max - min) / float64(bincount)
 	return minimum, spacing
