@@ -16,7 +16,7 @@ type Benchmark struct {
 // Count defines the number of samples to measure.
 func NewBenchmark(count int) *Benchmark {
 	if count <= 0 {
-		panic("must have count at least 0")
+		panic("must have count at least 1")
 	}
 
 	return &Benchmark{

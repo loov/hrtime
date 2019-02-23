@@ -16,7 +16,7 @@ type BenchmarkTSC struct {
 // Count defines the number of samples to measure.
 func NewBenchmarkTSC(count int) *BenchmarkTSC {
 	if count <= 0 {
-		panic("must have count at least 0")
+		panic("must have count at least 1")
 	}
 
 	return &BenchmarkTSC{
