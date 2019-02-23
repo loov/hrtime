@@ -58,7 +58,7 @@ func NewDurationHistogram(durations []time.Duration, opts *HistogramOptions) *Hi
 }
 
 func NewHistogram(nanoseconds []float64, opts *HistogramOptions) *Histogram {
-	if opts.BinCount <= 1 {
+	if opts.BinCount <= 0 {
 		panic("binCount must be larger than 0")
 	}
 
@@ -75,7 +75,7 @@ func NewHistogram(nanoseconds []float64, opts *HistogramOptions) *Histogram {
 	hist.Minimum = nanoseconds[0]
 	hist.Maximum = nanoseconds[len(nanoseconds)-1]
 
-	hist.Average = nanoseconds[0]
+	hist.Average = float64(0)
 	for _, x := range nanoseconds {
 		hist.Average += x
 	}
