@@ -6,8 +6,9 @@
 
 Package hrtime implements high-resolution timing functions and benchmarking utilities.
 
-For an example measuring `time.Sleep` precision on Mac and Windows.
+For example measuring `time.Sleep` precision on Mac and Windows.
 
+## Example
 ```
 package main
 
@@ -69,4 +70,4 @@ Output on Windows:
       2.2ms [ 134] ███▌
 ```
 
-_The full explanation why it outputs this is out of the scope of this document. However all sleep instructions have a specified granularity and `time.Sleep` actual sleeping time is `requested time ± sleep granularity`. Of course there are other exceptions to that behavior._
+_A full explanation why it outputs this is out of the scope of this document. However, all sleep instructions have a specified granularity and `time.Sleep` actual sleeping time is `requested time ± sleep granularity`. There are also other explanations to that behavior._
