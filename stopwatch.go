@@ -19,29 +19,29 @@ func (span *Span) Duration() time.Duration {
 
 // Stopwatch allows concurrent benchmarking using Now
 type Stopwatch struct {
-	lap   int32
-	done  int32
-	spans []Span
-	wait  sync.Mutex
+	nextLap      int32
+	lapsMeasured int32
+	spans        []Span
+	wait         sync.Mutex
 }
 
 // NewStopwatch creates a new concurrent benchmark using Now
 func NewStopwatch(count int) *Stopwatch {
 	if count <= 0 {
-		panic("must have count at least 0")
+		panic("must have count at least 1")
 	}
 
-	stop := &Stopwatch{
-		lap:   0,
-		spans: make([]Span, count),
+	bench := &Stopwatch{
+		nextLap: 0,
+		spans:   make([]Span, count),
 	}
-	stop.wait.Lock()
-	return stop
+	bench.wait.Lock()
+	return bench
 }
 
 // mustBeCompleted checks whether measurement has been completed.
 func (bench *Stopwatch) mustBeCompleted() {
-	if int(atomic.LoadInt32(&bench.done)) > len(bench.spans) {
+	if int(atomic.LoadInt32(&bench.lapsMeasured)) < len(bench.spans) {
 		panic("benchmarking incomplete")
 	}
 }
@@ -52,7 +52,7 @@ func (bench *Stopwatch) mustBeCompleted() {
 //
 // Call to Stop with -1 is ignored.
 func (bench *Stopwatch) Start() int32 {
-	lap := atomic.AddInt32(&bench.lap, 1) - 1
+	lap := atomic.AddInt32(&bench.nextLap, 1) - 1
 	if int(lap) > len(bench.spans) {
 		return -1
 	}
@@ -69,10 +69,10 @@ func (bench *Stopwatch) Stop(lap int32) {
 	}
 	bench.spans[lap].Finish = Now()
 
-	done := atomic.AddInt32(&bench.done, 1)
-	if int(done) == len(bench.spans) {
+	lapsMeasured := atomic.AddInt32(&bench.lapsMeasured, 1)
+	if int(lapsMeasured) == len(bench.spans) {
 		bench.finalize()
-	} else if int(done) > len(bench.spans) {
+	} else if int(lapsMeasured) > len(bench.spans) {
 		panic("stop called too many times")
 	}
 }
