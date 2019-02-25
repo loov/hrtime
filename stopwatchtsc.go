@@ -18,7 +18,7 @@ func (span *SpanTSC) ApproxDuration() time.Duration { return span.Count().Approx
 // Duration returns the duration of the count span.
 func (span *SpanTSC) Count() Count { return span.Finish - span.Start }
 
-// StopwatchTSC allows concurrent benchmarking using Now
+// StopwatchTSC allows concurrent benchmarking using TSC
 type StopwatchTSC struct {
 	lap   int32
 	done  int32
@@ -26,7 +26,7 @@ type StopwatchTSC struct {
 	wait  sync.Mutex
 }
 
-// NewStopwatchTSC creates a new concurrent benchmark using Now
+// NewStopwatchTSC creates a new concurrent benchmark using TSC
 func NewStopwatchTSC(count int) *StopwatchTSC {
 	if count <= 0 {
 		panic("must have count at least 0")
@@ -49,18 +49,25 @@ func (bench *StopwatchTSC) mustBeCompleted() {
 
 // Start starts measuring a new lap.
 // It returns the lap number to pass in for Stop.
-// It will return false, when all measurements have been made.
-func (bench *StopwatchTSC) Start() (int32, bool) {
+// It will return -1, when all measurements have been made.
+//
+// Call to Stop with -1 is ignored.
+func (bench *StopwatchTSC) Start() int32 {
 	lap := atomic.AddInt32(&bench.lap, 1) - 1
 	if int(lap) > len(bench.spans) {
-		return -1, false
+		return -1
 	}
 	bench.spans[lap].Start = TSC()
-	return lap, true
+	return lap
 }
 
 // Stop stops measuring the specified lap.
+//
+// Call to Stop with -1 is ignored.
 func (bench *StopwatchTSC) Stop(lap int32) {
+	if lap < 0 {
+		return
+	}
 	bench.spans[lap].Finish = TSC()
 
 	done := atomic.AddInt32(&bench.done, 1)

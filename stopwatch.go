@@ -48,18 +48,25 @@ func (bench *Stopwatch) mustBeCompleted() {
 
 // Start starts measuring a new lap.
 // It returns the lap number to pass in for Stop.
-// It will return false, when all measurements have been made.
-func (bench *Stopwatch) Start() (int32, bool) {
+// It will return -1, when all measurements have been made.
+//
+// Call to Stop with -1 is ignored.
+func (bench *Stopwatch) Start() int32 {
 	lap := atomic.AddInt32(&bench.lap, 1) - 1
 	if int(lap) > len(bench.spans) {
-		return -1, false
+		return -1
 	}
 	bench.spans[lap].Start = Now()
-	return lap, true
+	return lap
 }
 
 // Stop stops measuring the specified lap.
+//
+// Call to Stop with -1 is ignored.
 func (bench *Stopwatch) Stop(lap int32) {
+	if lap < 0 {
+		return
+	}
 	bench.spans[lap].Finish = Now()
 
 	done := atomic.AddInt32(&bench.done, 1)
