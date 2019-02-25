@@ -13,7 +13,7 @@ func ExampleStopwatch() {
 	bench := hrtime.NewStopwatch(numberOfExperiments)
 	for i := 0; i < numberOfExperiments; i++ {
 		go func() {
-			lap, _ := bench.Start()
+			lap := bench.Start()
 			defer bench.Stop(lap)
 
 			time.Sleep(1000 * time.Nanosecond)
@@ -28,7 +28,7 @@ func ExampleStopwatchTSC() {
 	bench := hrtime.NewStopwatchTSC(numberOfExperiments)
 	for i := 0; i < numberOfExperiments; i++ {
 		go func() {
-			lap, _ := bench.Start()
+			lap := bench.Start()
 			defer bench.Stop(lap)
 
 			time.Sleep(1000 * time.Nanosecond)
@@ -42,7 +42,7 @@ func TestStopwatch(t *testing.T) {
 	bench := hrtime.NewStopwatch(8)
 	for i := 0; i < 8; i++ {
 		go func() {
-			lap, _ := bench.Start()
+			lap := bench.Start()
 			defer bench.Stop(lap)
 
 			time.Sleep(1000 * time.Nanosecond)
@@ -56,7 +56,7 @@ func TestStopwatchTSC(t *testing.T) {
 	bench := hrtime.NewStopwatchTSC(8)
 	for i := 0; i < 8; i++ {
 		go func() {
-			lap, _ := bench.Start()
+			lap := bench.Start()
 			defer bench.Stop(lap)
 
 			time.Sleep(1000 * time.Nanosecond)
