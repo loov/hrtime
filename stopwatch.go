@@ -88,7 +88,7 @@ func (bench *Stopwatch) finalize() {
 func (bench *Stopwatch) Wait() {
 	// lock waits for finalize to be called by the last measurement.
 	bench.wait.Lock()
-	// intentionally empty
+	_ = 1 // intentionally empty block, suppress staticcheck SA2001 warning
 	bench.wait.Unlock()
 }
 
