@@ -35,6 +35,7 @@ func NewStopwatch(count int) *Stopwatch {
 		nextLap: 0,
 		spans:   make([]Span, count),
 	}
+	// lock mutex to ensure Wait() blocks until finalize is called
 	bench.wait.Lock()
 	return bench
 }
@@ -79,11 +80,13 @@ func (bench *Stopwatch) Stop(lap int32) {
 
 // finalize finalizes the stopwatch
 func (bench *Stopwatch) finalize() {
+	// release the initial lock such that Wait can proceed.
 	bench.wait.Unlock()
 }
 
 // Wait waits for all measurements to be completed.
 func (bench *Stopwatch) Wait() {
+	// lock waits for finalize to be called by the last measurement.
 	bench.wait.Lock()
 	// intentionally empty
 	bench.wait.Unlock()

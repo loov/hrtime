@@ -36,6 +36,7 @@ func NewStopwatchTSC(count int) *StopwatchTSC {
 		nextLap: 0,
 		spans:   make([]SpanTSC, count),
 	}
+	// lock mutex to ensure Wait() blocks until finalize is called
 	bench.wait.Lock()
 	return bench
 }
@@ -80,11 +81,13 @@ func (bench *StopwatchTSC) Stop(lap int32) {
 
 // finalize finalizes the stopwatchTSC
 func (bench *StopwatchTSC) finalize() {
+	// release the initial lock such that Wait can proceed.
 	bench.wait.Unlock()
 }
 
 // Wait waits for all measurements to be completed.
 func (bench *StopwatchTSC) Wait() {
+	// lock waits for finalize to be called by the last measurement.
 	bench.wait.Lock()
 	// intentionally empty
 	bench.wait.Unlock()
