@@ -57,6 +57,7 @@ func NewDurationHistogram(durations []time.Duration, opts *HistogramOptions) *Hi
 	return NewHistogram(nanos, opts)
 }
 
+// NewHistogram creates a new histogram from the specified nanosecond values.
 func NewHistogram(nanoseconds []float64, opts *HistogramOptions) *Histogram {
 	if opts.BinCount <= 0 {
 		panic("binCount must be larger than 0")

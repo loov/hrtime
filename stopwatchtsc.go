@@ -15,7 +15,7 @@ type SpanTSC struct {
 // ApproxDuration returns the approximate duration of the span.
 func (span *SpanTSC) ApproxDuration() time.Duration { return span.Count().ApproxDuration() }
 
-// Duration returns the duration of the count span.
+// Count returns the duration in count of the count span.
 func (span *SpanTSC) Count() Count { return span.Finish - span.Start }
 
 // StopwatchTSC allows concurrent benchmarking using TSC
