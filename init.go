@@ -4,7 +4,7 @@
 // At the moment, for Windows it is using Performance Counters and on other
 // platforms standard `time.Now` (since it's good enough).
 //
-// Package also supports using hardward time stamp counters (TSC).
+// Package also supports using hardware time stamp counters (TSC).
 // They offer better accuracy and on some platforms correspond to the processor cycles.
 // However, they are not supported on all platforms.
 //
