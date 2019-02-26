@@ -26,6 +26,9 @@ func getFrequency() int64 {
 }
 
 // Now returns current time.Duration with best possible precision.
+//
+// Now returns time offset from a specific time.
+// The values aren't comparable between computer restarts or between computers.
 func Now() time.Duration {
 	var now int64
 	syscall.Syscall(procCounter.Addr(), 1, uintptr(unsafe.Pointer(&now)), 0, 0)
