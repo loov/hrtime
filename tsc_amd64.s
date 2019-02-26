@@ -19,7 +19,7 @@ TEXT ·rdtscAsm(SB),NOSPLIT,$0-8
 	RET
 
 // func ·cpuidAsm(op, op2 uint32) (eax, ebx, ecx, edx uint32)
-TEXT ·cpuidAsm(SB),NOSPLIT,$8-16
+TEXT ·cpuidAsm(SB),NOSPLIT,$8-24
 	MOVL  op1+0(FP), AX
 	MOVL  op2+4(FP), CX
 	CPUID
