@@ -13,7 +13,7 @@ Package also supports using hardware time stamp counters (TSC). They offer bette
 For example measuring `time.Sleep` on Mac and Windows.
 
 ## Example
-```
+```go
 package main
 
 import (
