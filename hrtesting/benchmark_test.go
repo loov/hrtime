@@ -1,19 +1,29 @@
 package hrtesting_test
 
 import (
-	"math/rand"
+	"fmt"
+	"runtime"
 	"testing"
-	"time"
 
 	"github.com/loov/hrtime/hrtesting"
 )
 
-func BenchmarkHistogram(b *testing.B) {
+func BenchmarkReport(b *testing.B) {
 	bench := hrtesting.NewBenchmark(b)
-	defer bench.Print()
+	defer bench.Report()
 
 	for bench.Next() {
-		time.Sleep(time.Microsecond * time.Duration(rand.Intn(100)))
+		r := fmt.Sprintf("hello, world %d", 123)
+		runtime.KeepAlive(r)
+	}
+}
 
+func BenchmarkTSCReport(b *testing.B) {
+	bench := hrtesting.NewBenchmarkTSC(b)
+	defer bench.Report()
+
+	for bench.Next() {
+		r := fmt.Sprintf("hello, world %d", 123)
+		runtime.KeepAlive(r)
 	}
 }
