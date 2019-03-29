@@ -9,11 +9,13 @@ import (
 	"github.com/loov/hrtime"
 )
 
+// Benchmark wraps *testing.B to measure more details using hrtime.Benchmark
 type Benchmark struct {
 	hr hrtime.Benchmark
 	b  *testing.B
 }
 
+// NewBenchmark creates a new *hrtime.Benchmark using *testing.B parameters.
 func NewBenchmark(b *testing.B) *Benchmark {
 	bench := &Benchmark{
 		hr: *hrtime.NewBenchmark(b.N),
@@ -23,6 +25,8 @@ func NewBenchmark(b *testing.B) *Benchmark {
 	return bench
 }
 
+// Next starts measuring the next lap.
+// It will return false, when all measurements have been made.
 func (bench *Benchmark) Next() bool {
 	bench.b.StartTimer()
 
@@ -33,11 +37,13 @@ func (bench *Benchmark) Next() bool {
 	return result
 }
 
+// BenchmarkTSC wraps *testing.B to measure more details using hrtime.BenchmarkTSC
 type BenchmarkTSC struct {
 	hr hrtime.BenchmarkTSC
 	b  *testing.B
 }
 
+// NewBenchmarkTSC creates a new *hrtime.BenchmarkTSC using *testing.B parameters.
 func NewBenchmarkTSC(b *testing.B) *BenchmarkTSC {
 	bench := &BenchmarkTSC{
 		hr: *hrtime.NewBenchmarkTSC(b.N),
@@ -47,6 +53,8 @@ func NewBenchmarkTSC(b *testing.B) *BenchmarkTSC {
 	return bench
 }
 
+// Next starts measuring the next lap.
+// It will return false, when all measurements have been made.
 func (bench *BenchmarkTSC) Next() bool {
 	bench.b.StartTimer()
 

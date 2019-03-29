@@ -3,6 +3,7 @@
 
 package hrtesting
 
+// Report reports the 50-th, 90-th and 99-th percentile as a metric.
 func (bench *Benchmark) Report() {
 	hist := bench.hr.Histogram(1)
 	if bench.b.N >= 3 {
@@ -16,6 +17,7 @@ func (bench *Benchmark) Report() {
 	}
 }
 
+// Report reports the 50-th, 90-th and 99-th percentile as a metric.
 func (bench *BenchmarkTSC) Report() {
 	hist := bench.hr.Histogram(1)
 	if bench.b.N >= 3 {

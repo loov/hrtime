@@ -5,6 +5,7 @@ package hrtesting
 
 import "time"
 
+// Report reports the 50-th, 90-th and 99-th percentile to the log.
 func (bench *Benchmark) Report() {
 	hist := bench.hr.Histogram(1)
 	bench.b.Logf("%6v₅₀ %6v₉₀ %6v₉₉ N=%v",
@@ -15,6 +16,7 @@ func (bench *Benchmark) Report() {
 	)
 }
 
+// Report reports the 50-th, 90-th and 99-th percentile to the log.
 func (bench *BenchmarkTSC) Report() {
 	hist := bench.hr.Histogram(1)
 	bench.b.Logf("%6v₅₀ %6v₉₀ %6v₉₉ N=%v",

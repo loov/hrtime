@@ -6,18 +6,19 @@ import (
 	"testing"
 )
 
-// Benchmark implements minimal wrapper over *testing.Benchmark for disabling hrtesting.
+// Benchmark implements minimal wrapper over *testing.B for disabling hrtesting.
 type Benchmark struct {
 	b *testing.B
 	k int
 }
 
 // NewBenchmark creates a hrtime.Benchmark wrapper for *testing.B
-func NewBenchmark(b *testing.Benchmark) *Benchmark {
+func NewBenchmark(b *testing.B) *Benchmark {
 	return &Benchmark{b: b, k: 0}
 }
 
-// Next is used to loop through all the tests.
+// Next starts measuring the next lap.
+// It will return false, when all measurements have been made.
 func (bench *Benchmark) Next() bool {
 	bench.b.StartTimer()
 	bench.k++
@@ -31,7 +32,7 @@ func (bench *Benchmark) Next() bool {
 // Report reports the result to the console.
 func (bench *Benchmark) Report() {}
 
-// Benchmark implements minimal wrapper over *testing.Benchmark for disabling hrtesting.
+// Benchmark implements minimal wrapper over *testing.B for disabling hrtesting.
 type BenchmarkTSC = Benchmark
 
 // NewBenchmark creates a hrtime.BenchmarkTSC wrapper for *testing.B
