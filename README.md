@@ -75,3 +75,29 @@ Output on Windows:
 ```
 
 _A full explanation why it outputs this is out of the scope of this document. However, all sleep instructions have a specified granularity and `time.Sleep` actual sleeping time is `requested time ± sleep granularity`. There are also other explanations to that behavior._
+
+## Benchmarking
+
+`hrtime/hrtesting` can be used to supplement existing benchmarks with more details:
+
+```go
+package hrtesting_test
+
+import (
+	"fmt"
+	"runtime"
+	"testing"
+
+	"github.com/loov/hrtime/hrtesting"
+)
+
+func BenchmarkReport(b *testing.B) {
+	bench := hrtesting.NewBenchmark(b)
+	defer bench.Report()
+
+	for bench.Next() {
+		r := fmt.Sprintf("hello, world %d", 123)
+		runtime.KeepAlive(r)
+	}
+}
+``` 
