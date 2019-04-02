@@ -111,6 +111,21 @@ func (bench *StopwatchTSC) ApproxDurations() []time.Duration {
 	return durations
 }
 
+// Name returns name of the benchmark.
+func (bench *StopwatchTSC) Name() string { return "" }
+
+// Unit returns units it measures.
+func (bench *StopwatchTSC) Unit() string { return "tsc" }
+
+// Float64s returns all measurements.
+func (bench *StopwatchTSC) Float64s() []float64 {
+	measurements := make([]float64, len(bench.spans))
+	for i := range measurements {
+		measurements[i] = float64(bench.spans[i].Count())
+	}
+	return measurements
+}
+
 // Histogram creates an histogram of all the durations.
 //
 // It creates binCount bins to distribute the data and uses the

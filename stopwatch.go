@@ -110,6 +110,21 @@ func (bench *Stopwatch) Durations() []time.Duration {
 	return durations
 }
 
+// Name returns name of the benchmark.
+func (bench *Stopwatch) Name() string { return "" }
+
+// Unit returns units it measures.
+func (bench *Stopwatch) Unit() string { return "ns" }
+
+// Float64s returns all measurements.
+func (bench *Stopwatch) Float64s() []float64 {
+	measurements := make([]float64, len(bench.spans))
+	for i := range measurements {
+		measurements[i] = float64(bench.spans[i].Duration().Nanoseconds())
+	}
+	return measurements
+}
+
 // Histogram creates an histogram of all the durations.
 //
 // It creates binCount bins to distribute the data and uses the
