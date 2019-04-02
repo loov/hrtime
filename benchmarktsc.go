@@ -79,6 +79,9 @@ func (bench *BenchmarkTSC) Laps() []time.Duration {
 	return laps
 }
 
+// Name returns name of the benchmark.
+func (bench *BenchmarkTSC) Name() string { return "" }
+
 // Unit returns units it measures.
 func (bench *BenchmarkTSC) Unit() string { return "tsc" }
 

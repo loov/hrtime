@@ -67,6 +67,9 @@ func (bench *Benchmark) Laps() []time.Duration {
 	return append(bench.laps[:0:0], bench.laps...)
 }
 
+// Name returns name of the benchmark.
+func (bench *Benchmark) Name() string { return "" }
+
 // Unit returns units it measures.
 func (bench *Benchmark) Unit() string { return "ns" }
 
