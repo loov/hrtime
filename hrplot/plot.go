@@ -41,7 +41,7 @@ func All(svgfile string, b Benchmark, options ...Option) error {
 	stack.Margin = plot.R(5, 5, 5, 5)
 	p.Add(stack)
 
-	stack.Add(plot.NewAxisGroup(line(b, measurements)...))
+	stack.Add(plot.NewAxisGroup(lineOptimized(b, measurements)...))
 	stack.Add(plot.NewAxisGroup(density(b, measurements)...))
 
 	percentiles := plot.NewAxisGroup(percentiles(b, measurements)...)
@@ -63,7 +63,7 @@ func Line(svgfile string, b Benchmark, options ...Option) error {
 
 	p := plot.New()
 	p.Margin = plot.R(5, 0, 0, 5)
-	p.AddGroup(line(b, measurements)...)
+	p.AddGroup(lineOptimized(b, measurements)...)
 
 	svg := plot.NewSVG(defaultWidth, defaultHeight)
 	p.Draw(svg)
@@ -111,6 +111,16 @@ func line(b Benchmark, measurements []float64) []plot.Element {
 		plot.NewGrid(),
 		plot.NewGizmo(),
 		plot.NewLine(b.Unit(), plot.Points(nil, measurements)),
+		plot.NewTickLabels(),
+		plot.NewTextbox(label("line", b)),
+	}
+}
+
+func lineOptimized(b Benchmark, measurements []float64) []plot.Element {
+	return []plot.Element{
+		plot.NewGrid(),
+		plot.NewGizmo(),
+		plot.NewOptimizedLine(b.Unit(), plot.Points(nil, measurements), 1),
 		plot.NewTickLabels(),
 		plot.NewTextbox(label("line", b)),
 	}
