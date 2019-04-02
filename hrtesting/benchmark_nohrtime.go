@@ -32,6 +32,15 @@ func (bench *Benchmark) Next() bool {
 // Report reports the result to the console.
 func (bench *Benchmark) Report() {}
 
+// Name returns benchmark name.
+func (bench *Benchmark) Name() string { return bench.b.Name() }
+
+// Unit returns units it measures.
+func (bench *Benchmark) Unit() string { return "" }
+
+// Measurements returns all measurements.
+func (bench *Benchmark) Measurements() []float64 { return nil }
+
 // Benchmark implements minimal wrapper over *testing.B for disabling hrtesting.
 type BenchmarkTSC = Benchmark
 
