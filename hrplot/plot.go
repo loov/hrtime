@@ -18,7 +18,7 @@ const (
 type Benchmark interface {
 	Name() string
 	Unit() string
-	Measurements() []float64
+	Float64s() []float64
 }
 
 // Option is for declaring options to plotting.
@@ -31,7 +31,7 @@ func label(kind string, b Benchmark) string {
 
 // All plots line, density and percentiles plot on a single image.
 func All(svgfile string, b Benchmark, options ...Option) error {
-	measurements := b.Measurements()
+	measurements := b.Float64s()
 	if len(measurements) == 0 {
 		return nil
 	}
@@ -56,7 +56,7 @@ func All(svgfile string, b Benchmark, options ...Option) error {
 
 // Line draws a line graph in timing order.
 func Line(svgfile string, b Benchmark, options ...Option) error {
-	measurements := b.Measurements()
+	measurements := b.Float64s()
 	if len(measurements) == 0 {
 		return nil
 	}
@@ -73,7 +73,7 @@ func Line(svgfile string, b Benchmark, options ...Option) error {
 
 // Density draws a density plot out of benchmark measurements.
 func Density(svgfile string, b Benchmark, options ...Option) error {
-	measurements := b.Measurements()
+	measurements := b.Float64s()
 	if len(measurements) == 0 {
 		return nil
 	}
@@ -90,7 +90,7 @@ func Density(svgfile string, b Benchmark, options ...Option) error {
 
 // Percentiles draws a percentiles plot out of benchmark measurements.
 func Percentiles(svgfile string, b Benchmark, options ...Option) error {
-	measurements := b.Measurements()
+	measurements := b.Float64s()
 	if len(measurements) == 0 {
 		return nil
 	}
