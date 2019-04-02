@@ -10,7 +10,6 @@ import (
 )
 
 func BenchmarkReport(b *testing.B) {
-
 	bench := hrtesting.NewBenchmark(b)
 	defer bench.Report()
 
