@@ -79,6 +79,18 @@ func (bench *BenchmarkTSC) Laps() []time.Duration {
 	return laps
 }
 
+// Unit returns units it measures.
+func (bench *BenchmarkTSC) Unit() string { return "tsc" }
+
+// Float64s returns all measurements as float64s
+func (bench *BenchmarkTSC) Float64s() []float64 {
+	measurements := make([]float64, len(bench.counts))
+	for i := range measurements {
+		measurements[i] = float64(bench.counts[i])
+	}
+	return measurements
+}
+
 // Histogram creates an histogram of all the laps.
 //
 // It creates binCount bins to distribute the data and uses the

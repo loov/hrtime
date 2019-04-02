@@ -67,6 +67,18 @@ func (bench *Benchmark) Laps() []time.Duration {
 	return append(bench.laps[:0:0], bench.laps...)
 }
 
+// Unit returns units it measures.
+func (bench *Benchmark) Unit() string { return "ns" }
+
+// Float64s returns all measurements.
+func (bench *Benchmark) Float64s() []float64 {
+	measurements := make([]float64, len(bench.laps))
+	for i := range measurements {
+		measurements[i] = float64(bench.laps[i].Nanoseconds())
+	}
+	return measurements
+}
+
 // Histogram creates an histogram of all the laps.
 //
 // It creates binCount bins to distribute the data and uses the

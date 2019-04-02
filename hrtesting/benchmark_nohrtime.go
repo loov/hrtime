@@ -38,8 +38,8 @@ func (bench *Benchmark) Name() string { return bench.b.Name() }
 // Unit returns units it measures.
 func (bench *Benchmark) Unit() string { return "" }
 
-// Measurements returns all measurements.
-func (bench *Benchmark) Measurements() []float64 { return nil }
+// Float64s returns all measurements as float64s
+func (bench *BenchmarkTSC) Float64s() []float64 { return nil }
 
 // Benchmark implements minimal wrapper over *testing.B for disabling hrtesting.
 type BenchmarkTSC = Benchmark

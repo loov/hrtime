@@ -40,17 +40,10 @@ func (bench *Benchmark) Next() bool {
 func (bench *Benchmark) Name() string { return bench.b.Name() }
 
 // Unit returns units it measures.
-func (bench *Benchmark) Unit() string { return "ns" }
+func (bench *Benchmark) Unit() string { return bench.hr.Unit() }
 
-// Measurements returns all measurements.
-func (bench *Benchmark) Measurements() []float64 {
-	laps := bench.hr.Laps()
-	measurements := make([]float64, len(laps))
-	for i := range measurements {
-		measurements[i] = float64(laps[i].Nanoseconds())
-	}
-	return measurements
-}
+// Float64s returns all measurements.
+func (bench *Benchmark) Float64s() []float64 { return bench.hr.Float64s() }
 
 // BenchmarkTSC wraps *testing.B to measure more details using hrtime.BenchmarkTSC
 type BenchmarkTSC struct {
@@ -83,17 +76,10 @@ func (bench *BenchmarkTSC) Next() bool {
 }
 
 // Unit returns units it measures.
-func (bench *BenchmarkTSC) Unit() string { return "tsc" }
+func (bench *BenchmarkTSC) Unit() string { return bench.hr.Unit() }
 
-// Measurements returns all measurements.
-func (bench *BenchmarkTSC) Measurements() []float64 {
-	counts := bench.hr.Counts()
-	measurements := make([]float64, len(counts))
-	for i := range measurements {
-		measurements[i] = float64(counts[i])
-	}
-	return measurements
-}
+// Float64s returns all measurements as float64s
+func (bench *BenchmarkTSC) Float64s() []float64 { return bench.hr.Float64s() }
 
 func truncate(v float64, digits int) float64 {
 	if digits == 0 {
