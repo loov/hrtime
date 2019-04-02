@@ -21,12 +21,12 @@ func (bench *Benchmark) Report() {
 func (bench *BenchmarkTSC) Report() {
 	hist := bench.hr.Histogram(1)
 	if bench.b.N >= 3 {
-		bench.b.ReportMetric(hist.P50, "c/p50")
+		bench.b.ReportMetric(hist.P50, "tsc/p50")
 	}
 	if bench.b.N >= 10 {
-		bench.b.ReportMetric(hist.P90, "c/p90")
+		bench.b.ReportMetric(hist.P90, "tsc/p90")
 	}
 	if bench.b.N >= 100 {
-		bench.b.ReportMetric(hist.P99, "c/p99")
+		bench.b.ReportMetric(hist.P99, "tsc/p99")
 	}
 }
