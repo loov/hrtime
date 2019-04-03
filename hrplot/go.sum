@@ -4,5 +4,7 @@ github.com/loov/hrtime v0.0.0-20190402112844-5ed54104dd45 h1:XXggdI5uusTri3s7Ph4
 github.com/loov/hrtime v0.0.0-20190402112844-5ed54104dd45/go.mod h1:yDY3Pwv2izeY4sq7YcPX/dtLwzg5NU1AxWuWxKwd0p0=
 github.com/loov/hrtime v0.0.0-20190402113035-f4bb847046c0 h1:gT8qKbWhn3RzTI9xQCzq0ryl/SZDVidpufytf/6Qjo8=
 github.com/loov/hrtime v0.0.0-20190402113035-f4bb847046c0/go.mod h1:yDY3Pwv2izeY4sq7YcPX/dtLwzg5NU1AxWuWxKwd0p0=
+github.com/loov/hrtime v1.0.0 h1:cLpa/oganGVsekAHBJPkVe8loG8aKrFH6OCnFMerAD0=
+github.com/loov/hrtime v1.0.0/go.mod h1:yDY3Pwv2izeY4sq7YcPX/dtLwzg5NU1AxWuWxKwd0p0=
 github.com/loov/plot v0.0.0-20190402091651-f4b09b520b03 h1:eYKt71tgFkP46fXj8tkrXMIkKOz3bG1hX3FWUXVF2Xg=
 github.com/loov/plot v0.0.0-20190402091651-f4b09b520b03/go.mod h1:gSrhfSMoiPGG0CZ9E66kXjaHxFw0fzJhooyicOnz5z4=
