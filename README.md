@@ -2,8 +2,6 @@
 
 [![GoDoc](https://godoc.org/github.com/loov/hrtime?status.svg)](http://godoc.org/github.com/loov/hrtime)
 
-**BETA QUALITY**
-
 Package hrtime implements high-resolution timing functions and benchmarking utilities.
 
 `hrtime` relies on using the best timing mechanism on a particular system. At the moment, for Windows it is using Performance Counters and on other platforms standard `time.Now` (since it's good enough).
