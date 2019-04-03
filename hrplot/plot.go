@@ -62,7 +62,7 @@ func ClipPercentile(percentile float64) Option {
 
 // label formats the label to be used on plots.
 func label(kind string, b Benchmark) string {
-	return fmt.Sprintf("%s %s [%s]", kind, b.Name(), b.Unit())
+	return fmt.Sprintf("%s [%s] %s", b.Name(), b.Unit(), kind)
 }
 
 // All plots line, density and percentiles plot on a single image.
