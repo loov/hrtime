@@ -48,7 +48,7 @@ func niceNumber(span float64, round bool) float64 {
 }
 
 func truncate(v float64, digits int) float64 {
-	if digits == 0 {
+	if digits == 0 || v == 0 {
 		return 0
 	}
 
