@@ -4,5 +4,5 @@ go 1.12
 
 require (
 	github.com/loov/hrtime v1.0.1
-	github.com/loov/plot v0.0.0-20190402091651-f4b09b520b03
+	github.com/loov/plot v0.0.0-20200413101321-e09a6f01d2f5
 )

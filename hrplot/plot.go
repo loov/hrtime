@@ -9,6 +9,7 @@ import (
 	"sort"
 
 	"github.com/loov/plot"
+	"github.com/loov/plot/plotsvg"
 )
 
 // Benchmark declares interface for benchmarks it can plot.
@@ -92,7 +93,7 @@ func All(svgfile string, b Benchmark, opts ...Option) error {
 	percentiles.Y.Min, percentiles.Y.Max = 0, percentile(measurements, options.PercentileClip)
 	stack.Add(percentiles)
 
-	svg := plot.NewSVG(options.Width, options.Height*3)
+	svg := plotsvg.New(options.Width, options.Height*3)
 	p.Draw(svg)
 
 	return ioutil.WriteFile(svgfile, svg.Bytes(), 0755)
@@ -111,7 +112,7 @@ func Line(svgfile string, b Benchmark, opts ...Option) error {
 	p.Y.Max = percentile(measurements, options.LineClip)
 	p.AddGroup(lineOptimized(b, measurements)...)
 
-	svg := plot.NewSVG(options.Width, options.Height)
+	svg := plotsvg.New(options.Width, options.Height)
 	p.Draw(svg)
 
 	return ioutil.WriteFile(svgfile, svg.Bytes(), 0755)
@@ -130,7 +131,7 @@ func Density(svgfile string, b Benchmark, opts ...Option) error {
 	p.X.Max = percentile(measurements, options.DensityClip)
 	p.AddGroup(density(b, measurements)...)
 
-	svg := plot.NewSVG(options.Width, options.Height)
+	svg := plotsvg.New(options.Width, options.Height)
 	p.Draw(svg)
 
 	return ioutil.WriteFile(svgfile, svg.Bytes(), 0755)
@@ -151,7 +152,7 @@ func Percentiles(svgfile string, b Benchmark, opts ...Option) error {
 	p.Y.Min, p.Y.Max = 0, percentile(measurements, options.PercentileClip)
 	p.AddGroup(percentiles(b, measurements)...)
 
-	svg := plot.NewSVG(options.Width, options.Height)
+	svg := plotsvg.New(options.Width, options.Height)
 	p.Draw(svg)
 
 	return ioutil.WriteFile(svgfile, svg.Bytes(), 0755)
