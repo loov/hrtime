@@ -1,6 +1,9 @@
 package hrtime
 
-import "time"
+import (
+	"sync"
+	"time"
+)
 
 // Count represents represents Time Stamp Counter value, when available.
 //
@@ -8,13 +11,13 @@ import "time"
 // However it is not reliably convertible to a reasonable time-value.
 type Count int64
 
+var calibrateOnce sync.Once
+
 // ApproxDuration returns approximate conversion into a Duration.
 //
 // First call to this function will do calibration and can take several milliseconds.
 func (count Count) ApproxDuration() time.Duration {
-	if ratioCount == 0 {
-		calculateTSCConversion()
-	}
+	calibrateOnce.Do(calculateTSCConversion)
 	return time.Duration(count) * ratioNano / time.Duration(ratioCount)
 }
 
