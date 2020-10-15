@@ -14,6 +14,7 @@ import (
 
 	"github.com/loov/hrtime"
 	"github.com/loov/plot"
+	"github.com/loov/plot/plotsvg"
 )
 
 var (
@@ -174,7 +175,7 @@ func main() {
 
 		flex := plot.NewHFlex()
 
-		flex.Add(130, plot.NewTextbox(
+		text := plot.NewTextbox(
 			timing.Name,
 			fmt.Sprintf("Measured = %v", len(timing.Measured)),
 			fmt.Sprintf("Zeros = %v", timing.Zero),
@@ -183,7 +184,10 @@ func main() {
 			fmt.Sprintf("99.9 = %v", int(timing.P999)),
 			fmt.Sprintf("99.99 = %v", int(timing.P9999)),
 			fmt.Sprintf("Max = %v", int(timing.Max)),
-		))
+		)
+		text.Style.Origin = plot.Point{X: -1, Y: 0}
+
+		flex.Add(130, text)
 		flex.AddGroup(0,
 			plot.NewGrid(),
 			density,
@@ -193,7 +197,7 @@ func main() {
 		stack.Add(flex)
 	}
 
-	svgcanvas := plot.NewSVG(*width, *height*float64(len(timings)))
+	svgcanvas := plotsvg.New(*width, *height*float64(len(timings)))
 	p.Draw(svgcanvas)
 
 	err := ioutil.WriteFile(*svg, svgcanvas.Bytes(), 0755)
