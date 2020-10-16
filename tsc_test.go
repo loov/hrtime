@@ -53,8 +53,8 @@ func TestCountPrecision(t *testing.T) {
 		t.Logf("drift: too large %v (loopTime:%v, wallTime:%v)", approxConversionDrift, loopTime.ApproxDuration(), wallTime)
 	}
 
-	// we expect each call to take at least 2 nanos
-	if loopTime.ApproxDuration() < 2*N {
+	// we expect each call to take at least 1 nanos
+	if loopTime.ApproxDuration() < N {
 		t.Errorf("slow: loop time took %v", loopTime)
 	}
 	// we expect no call to take more than 20 nanos
