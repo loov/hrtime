@@ -1,6 +1,7 @@
 package hrtime
 
 import (
+	"math/bits"
 	"syscall"
 	"time"
 	"unsafe"
@@ -19,7 +20,7 @@ var (
 // getFrequency returns frequency in ticks per second.
 func getFrequency() int64 {
 	var freq int64
-	r1, _, _ := syscall.Syscall(procFreq.Addr(), 1, uintptr(unsafe.Pointer(&freq)), 0, 0)
+	r1, _, _ := syscall.SyscallN(procFreq.Addr(), uintptr(unsafe.Pointer(&freq)))
 	if r1 == 0 {
 		panic("call failed")
 	}
@@ -29,7 +30,7 @@ func getFrequency() int64 {
 // getCount returns counter ticks.
 func getCount() int64 {
 	var qpc int64
-	syscall.Syscall(procCounter.Addr(), 1, uintptr(unsafe.Pointer(&qpc)), 0, 0)
+	syscall.SyscallN(procCounter.Addr(), uintptr(unsafe.Pointer(&qpc)))
 	return qpc
 }
 
@@ -38,7 +39,10 @@ func getCount() int64 {
 // Now returns time offset from a specific time.
 // The values aren't comparable between computer restarts or between computers.
 func Now() time.Duration {
-	return time.Duration(getCount()-qpcBase) * time.Second / (time.Duration(qpcFrequency) * time.Nanosecond)
+	delta := uint64(getCount() - qpcBase)
+	hi, lo := bits.Mul64(delta, uint64(time.Second))
+	quo, _ := bits.Div64(hi, lo, uint64(qpcFrequency))
+	return time.Duration(quo)
 }
 
 // NowPrecision returns maximum possible precision for Now in nanoseconds.
